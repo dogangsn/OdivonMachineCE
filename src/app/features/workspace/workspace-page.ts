@@ -942,7 +942,7 @@ export class WorkspacePage {
   }
 
   private resolveFormLabels(): DomainFormLabels {
-    const key = `${PRODUCT.key}:${this.domain.key}`;
+    const key = `${PRODUCT.key}:${this.section}`;
     const labels: Record<string, DomainFormLabels> = {
       'fgas:equipment': {
         primaryLabel: 'Soğutucu akışkan',
@@ -1024,7 +1024,7 @@ export class WorkspacePage {
         categoryLabel: 'Rapor türü',
         categories: ['Uygunluk raporu', 'Bakım raporu', 'Tatbikat raporu', 'Risk değerlendirmesi'],
       },
-      'food-label:products': {
+      'machine-ce:products': {
         primaryLabel: 'GTIN / barkod',
         primaryPlaceholder: '8680000000000',
         secondaryLabel: 'Net miktar',
@@ -1032,7 +1032,7 @@ export class WorkspacePage {
         categoryLabel: 'Ürün kategorisi',
         categories: ['Atıştırmalık', 'Süt ürünü', 'İçecek', 'Takviye edici gıda'],
       },
-      'food-label:recipes': {
+      'machine-ce:recipes': {
         primaryLabel: 'Porsiyon gramajı',
         primaryPlaceholder: 'Örn. 45 g',
         secondaryLabel: 'Reçete versiyonu',
@@ -1040,7 +1040,7 @@ export class WorkspacePage {
         categoryLabel: 'Reçete durumu',
         categories: ['Taslak reçete', 'Pilot üretim', 'Onaylı reçete', 'Revizyon'],
       },
-      'food-label:allergens': {
+      'machine-ce:allergens': {
         primaryLabel: 'Alerjen kaynağı',
         primaryPlaceholder: 'Örn. badem unu',
         secondaryLabel: 'Beyan metni',
@@ -1048,7 +1048,7 @@ export class WorkspacePage {
         categoryLabel: 'Alerjen grubu',
         categories: ['Gluten', 'Süt', 'Yumurta', 'Sert kabuklu meyveler'],
       },
-      'food-label:nutrition': {
+      'machine-ce:nutrition': {
         primaryLabel: 'Enerji',
         primaryPlaceholder: 'Örn. 425 kcal / 100 g',
         secondaryLabel: 'Porsiyon',
@@ -1061,53 +1061,13 @@ export class WorkspacePage {
           'Karma yöntem',
         ],
       },
-      'food-label:approvals': {
+      'machine-ce:approvals': {
         primaryLabel: 'Hedef pazar',
         primaryPlaceholder: 'Türkiye / AB / UK',
         secondaryLabel: 'Etiket versiyonu',
         secondaryPlaceholder: 'LBL-v3.2',
         categoryLabel: 'Onay türü',
         categories: ['Mevzuat kontrolü', 'Kalite onayı', 'Pazarlama onayı', 'Nihai yayın'],
-      },
-      'machine-ce:machines': {
-        primaryLabel: 'Makine tipi / modeli',
-        primaryPlaceholder: 'Örn. CNC dik işleme merkezi M-04',
-        secondaryLabel: 'Nominal kapasite',
-        secondaryPlaceholder: 'Örn. 22 kW / 8000 dev/dk',
-        categoryLabel: 'Makine sınıfı',
-        categories: ['Üretim makinesi', 'Kaldırma ekipmanı', 'Paketleme hattı', 'Yardımcı tesis'],
-      },
-      'machine-ce:risks': {
-        primaryLabel: 'Tehlike ve risk skoru',
-        primaryPlaceholder: 'Örn. sıkışma riski · 4×3 = 12',
-        secondaryLabel: 'Koruyucu önlem',
-        secondaryPlaceholder: 'Örn. kilitlemeli muhafaza',
-        categoryLabel: 'Risk seviyesi',
-        categories: ['Düşük', 'Orta', 'Yüksek', 'Kabul edilemez'],
-      },
-      'machine-ce:standards': {
-        primaryLabel: 'Standart / mevzuat referansı',
-        primaryPlaceholder: 'Örn. EN ISO 12100:2010',
-        secondaryLabel: 'Uygulanabilir madde',
-        secondaryPlaceholder: 'Örn. Madde 6.3',
-        categoryLabel: 'Gereklilik türü',
-        categories: ['Direktif', 'Harmonize standart', 'Yönetmelik', 'İç gereklilik'],
-      },
-      'machine-ce:technical-files': {
-        primaryLabel: 'Teknik belge türü',
-        primaryPlaceholder: 'Örn. elektrik devre şeması',
-        secondaryLabel: 'Doküman revizyonu',
-        secondaryPlaceholder: 'Örn. REV-04',
-        categoryLabel: 'Dosya grubu',
-        categories: ['Tasarım', 'Hesap ve analiz', 'Test raporu', 'Kullanım talimatı'],
-      },
-      'machine-ce:declarations': {
-        primaryLabel: 'Beyan / CE kapsamı',
-        primaryPlaceholder: 'Örn. 2006/42/AT Makine Emniyeti',
-        secondaryLabel: 'Onay ve imza referansı',
-        secondaryPlaceholder: 'Örn. DOC-2026-084',
-        categoryLabel: 'Beyan durumu',
-        categories: ['Taslak', 'Teknik incelemede', 'İmzaya hazır', 'Yayımlandı'],
       },
     };
     return (
@@ -1123,12 +1083,27 @@ export class WorkspacePage {
   }
 
   private seedRows(): RecordRow[] {
-    const names = [
-      'CNC İşleme Merkezi M-04',
-      'Hidrolik Pres HP-200',
-      'Paketleme Hattı PK-12',
-      'Eski Torna Tezgâhı T-08',
-    ];
+    const names =
+      PRODUCT.key === 'fgas'
+        ? [
+            'Merkez Chiller Sistemi',
+            'Rooftop Klima RT-24',
+            'Soğuk Oda Ünitesi',
+            'Eski Kompresör Hattı',
+          ]
+        : PRODUCT.key === 'fire-safe'
+          ? [
+              'Merkez Sprinkler Hattı',
+              'B Blok Yangın Paneli',
+              'Acil Çıkış Bölgesi',
+              'Eski Pompa İstasyonu',
+            ]
+          : [
+              'Organik Granola 350 g',
+              'Bademli Protein Bar',
+              'Çilekli Yoğurt 200 g',
+              'Arşiv Etiket Şablonu',
+            ];
     return names.map((name, index) => ({
       id: index + 1,
       name,
