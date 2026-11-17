@@ -1,6 +1,6 @@
 {
   "name": "odivon-machine-ce",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "ng": "ng",
     "prestart": "node scripts/write-version.mjs",
@@ -14,7 +14,9 @@
     "contract": "vitest run src/app/core/api/api.contract.spec.ts",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "check": "npm run typecheck && npm test -- --watch=false && npm run contract && npm run build",
-    "deploy": "npm run build && npx wrangler deploy"
+    "deploy": "npm run build && npx wrangler deploy",
+    "prepare": "node scripts/install-git-hooks.mjs",
+    "version:bump": "node scripts/bump-version.mjs"
   },
   "private": true,
   "packageManager": "npm@11.16.0",

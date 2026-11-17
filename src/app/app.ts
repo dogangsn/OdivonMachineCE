@@ -35,12 +35,13 @@ import { VersionStore } from './core/version/version-store';
               ></span>
             </span>
           </div>
-          <span class="odv-badge-info mb-2">YENİ SÜRÜM HAZIR</span>
+          <span class="odv-badge-info mb-2">YENİ SÜRÜM YAYINLANDI</span>
           <h2 id="update-title" class="m-0 text-xl font-black text-slate-900 dark:text-white">
             Uygulama güncellemesi hazır
           </h2>
           <p class="mt-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            Önbellek ve oturum bütünlüğünü koruyarak en güncel Odivon MachineCE sürümüne geçin.
+            Güvenliğiniz için çerezler ve eski oturum önbelleği temizlenerek en güncel sürüme
+            geçilecek ve giriş ekranına yönlendirileceksiniz.
           </p>
           @if (version.remote()?.version) {
             <div
@@ -60,7 +61,7 @@ import { VersionStore } from './core/version/version-store';
             (click)="version.applyUpdate()"
           >
             <span class="material-symbols-rounded">system_update_alt</span>
-            {{ version.updating() ? 'Güncelleniyor…' : 'Şimdi güvenli güncelle' }}
+            {{ version.updating() ? 'Çerezler temizleniyor…' : 'Güncelle ve girişe git' }}
           </button>
         </section>
       </div>
