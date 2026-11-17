@@ -1259,7 +1259,7 @@ export class AuthPage {
     );
     validate(p.password, ({ value }) =>
       this.registerMode() &&
-      (value().length < 10 || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/.test(value()))
+        (value().length < 10 || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/.test(value()))
         ? { kind: 'passwordStrength', message: 'Şifre yeterince güçlü değil.' }
         : undefined,
     );
