@@ -12,6 +12,7 @@ import { RoleOption, SettingsApi, TenantUser } from './settings.api';
   template: `<div class="space-y-6">
       <app-page-header
         eyebrow="TENANT YÖNETİMİ"
+        icon="tune"
         title="Ekip ve Ayarlar"
         description="Hesap profilini, ekip erişimini ve rol atamalarını tenant sınırları içinde yönetin."
       >
@@ -21,64 +22,115 @@ import { RoleOption, SettingsApi, TenantUser } from './settings.api';
           </button>
         }
       </app-page-header>
-      <section class="grid gap-5 lg:grid-cols-[.72fr_1.28fr]">
-        <article class="odv-card p-6">
-          <h2 class="m-0 text-lg font-black">Çalışma alanı</h2>
-          <div class="mt-5 space-y-4 text-sm">
-            <div>
-              <span class="block text-xs text-slate-500">Şirket</span
-              ><strong>{{ auth.session()?.tenantName }}</strong>
+      <section class="grid gap-5 lg:grid-cols-[.75fr_1.25fr]">
+        <article class="kpi-card flex flex-col justify-between p-6">
+          <div>
+            <div class="flex items-center justify-between">
+              <span
+                class="text-xs font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
+                >KURUMSAL TENANT</span
+              >
+              <span
+                class="grid size-10 place-items-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400"
+              >
+                <span class="material-symbols-rounded">domain</span>
+              </span>
             </div>
-            <div>
-              <span class="block text-xs text-slate-500">Tenant kimliği</span
-              ><code class="text-xs">{{ auth.session()?.tenantId }}</code>
+            <h2 class="mt-3 text-xl font-black text-slate-900 dark:text-white">
+              {{ auth.session()?.tenantName || 'Odivon Kuruluşu' }}
+            </h2>
+            <div class="mt-5 space-y-3.5 text-sm">
+              <div
+                class="flex items-center justify-between rounded-xl border border-slate-200/70 bg-slate-50/70 px-3.5 py-2.5 dark:border-slate-800 dark:bg-slate-800/50"
+              >
+                <span class="text-xs font-semibold text-slate-500">Tenant Kimliği</span>
+                <code class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">{{
+                  auth.session()?.tenantId || '—'
+                }}</code>
+              </div>
+              <div
+                class="flex items-center justify-between rounded-xl border border-slate-200/70 bg-slate-50/70 px-3.5 py-2.5 dark:border-slate-800 dark:bg-slate-800/50"
+              >
+                <span class="text-xs font-semibold text-slate-500">Üyelik Durumu</span>
+                <span class="odv-badge-success">{{
+                  auth.session()?.membershipStatus || 'active'
+                }}</span>
+              </div>
             </div>
-            <div>
-              <span class="block text-xs text-slate-500">Üyelik durumu</span
-              ><span class="odv-badge-success">{{ auth.session()?.membershipStatus }}</span>
-            </div>
-            <a routerLink="/billing" class="odv-btn-soft inline-flex">Abonelik ve ödeme</a>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <a routerLink="/billing" class="odv-btn-soft w-full justify-center">
+              <span class="material-symbols-rounded">credit_card</span>Abonelik ve ödeme yönetimi
+            </a>
           </div>
         </article>
         <article class="odv-card p-6">
-          <h2 class="m-0 text-lg font-black">Hesabım</h2>
-          <form class="mt-5 grid gap-4 sm:grid-cols-2" (submit)="saveProfile($event)">
+          <div
+            class="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4 dark:border-slate-800"
+          >
+            <span
+              class="grid size-10 place-items-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400"
+            >
+              <span class="material-symbols-rounded">person</span>
+            </span>
+            <div>
+              <h2 class="m-0 text-lg font-black text-slate-900 dark:text-white">Hesabım</h2>
+              <p class="mb-0 mt-0.5 text-xs text-slate-500">
+                Denetim kayıtlarında görünen yetkili mühendis/kullanıcı profiliniz
+              </p>
+            </div>
+          </div>
+          <form class="grid gap-4 sm:grid-cols-2" (submit)="saveProfile($event)">
             <label
-              ><span class="mb-1.5 block text-xs font-bold">Ad soyad</span
+              ><span
+                class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300"
+                >Ad soyad</span
               ><input class="odv-input" [formField]="profileForm.displayName" /></label
             ><label
-              ><span class="mb-1.5 block text-xs font-bold">Telefon</span
+              ><span
+                class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300"
+                >Telefon</span
               ><input class="odv-input" autocomplete="tel" [formField]="profileForm.phone" /></label
             ><label class="sm:col-span-2"
-              ><span class="mb-1.5 block text-xs font-bold">E-posta</span
+              ><span
+                class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300"
+                >E-posta</span
               ><input class="odv-input" disabled [value]="auth.session()?.email"
             /></label>
-            <div class="sm:col-span-2">
+            <div class="sm:col-span-2 flex justify-end">
               <button class="odv-btn-primary" type="submit" [disabled]="profileSaving()">
-                Profili kaydet
+                <span class="material-symbols-rounded">check</span>
+                {{ profileSaving() ? 'Kaydediliyor…' : 'Profili kaydet' }}
               </button>
             </div>
           </form>
         </article>
       </section>
       <section class="odv-card overflow-hidden">
-        <div class="border-b border-slate-200 p-5 dark:border-slate-800">
-          <h2 class="m-0 text-xl font-black">Ekip erişimi</h2>
-          <p class="mb-0 mt-1 text-sm text-slate-500">
-            Her kullanıcı yalnız atanmış rol ve MachineCe izinleriyle işlem yapar.
-          </p>
+        <div
+          class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 p-5 dark:border-slate-800"
+        >
+          <div>
+            <h2 class="m-0 text-lg sm:text-xl font-black text-slate-900 dark:text-white">
+              Ekip erişimi
+            </h2>
+            <p class="mb-0 mt-1 text-xs sm:text-sm text-slate-500">
+              Her kullanıcı yalnız atanmış rol ve MachineCE izinleriyle işlem yapar.
+            </p>
+          </div>
+          <span class="odv-badge-info">{{ users().length }} Kullanıcı</span>
         </div>
         @if (loading()) {
           <div class="grid min-h-52 place-items-center">
-            <span class="material-symbols-rounded animate-spin text-4xl text-violet-600"
+            <span class="material-symbols-rounded animate-spin !text-4xl text-indigo-600"
               >progress_activity</span
             >
           </div>
         } @else if (error()) {
           <div class="p-8 text-center text-sm text-rose-600">{{ error() }}</div>
         } @else {
-          <div class="overflow-x-auto">
-            <table class="w-full min-w-[760px]">
+          <div class="overflow-x-auto custom-scroll">
+            <table class="w-full min-w-[760px] border-collapse">
               <thead>
                 <tr>
                   <th class="odv-th">Kullanıcı</th>
@@ -90,15 +142,30 @@ import { RoleOption, SettingsApi, TenantUser } from './settings.api';
               </thead>
               <tbody>
                 @for (user of users(); track user.uid) {
-                  <tr>
+                  <tr class="transition-colors hover:bg-indigo-50/40 dark:hover:bg-slate-800/60">
                     <td class="odv-td">
-                      <strong class="block">{{ user.displayName }}</strong
-                      ><span class="text-xs text-slate-500">{{ user.email }}</span>
+                      <div class="flex items-center gap-3">
+                        <span
+                          class="grid size-8 shrink-0 place-items-center rounded-full bg-indigo-50 text-[11px] font-bold text-indigo-600 dark:bg-indigo-950/70 dark:text-indigo-400"
+                        >
+                          {{ initials(user.displayName || user.email) }}
+                        </span>
+                        <div>
+                          <strong class="block font-bold text-slate-900 dark:text-white">{{
+                            user.displayName
+                          }}</strong>
+                          <span class="text-xs text-slate-500">{{ user.email }}</span>
+                        </div>
+                      </div>
                     </td>
                     <td class="odv-td">
-                      {{
-                        user.role === 'owner' ? 'Hesap sahibi' : user.roleIds.length + ' özel rol'
-                      }}
+                      <span class="odv-badge-info">
+                        {{
+                          user.role === 'owner'
+                            ? 'Hesap sahibi'
+                            : user.roleIds.length + ' özel rol'
+                        }}
+                      </span>
                     </td>
                     <td class="odv-td">
                       <span
@@ -118,7 +185,7 @@ import { RoleOption, SettingsApi, TenantUser } from './settings.api';
                       @if (user.role !== 'owner' && user.status === 'active' && canManage) {
                         <button
                           type="button"
-                          class="odv-btn-ghost text-rose-600"
+                          class="odv-btn-ghost !py-1.5 !px-3 !text-xs !text-rose-600 dark:!text-rose-400"
                           (click)="deactivate(user)"
                         >
                           Erişimi kapat
@@ -209,6 +276,13 @@ export class SettingsPage {
   constructor() {
     void this.load();
   }
+  initials(name: string): string {
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  }
   async load() {
     this.loading.set(true);
     try {
@@ -281,4 +355,3 @@ export class SettingsPage {
     }
   }
 }
-

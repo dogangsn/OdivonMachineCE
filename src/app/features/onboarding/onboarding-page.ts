@@ -9,90 +9,102 @@ import { AuthStore } from '../../core/auth/auth-store';
 @Component({
   selector: 'app-onboarding-page',
   imports: [FormField],
-  template: `<main class="min-h-screen bg-slate-50 p-5 dark:bg-[#0b1120]">
+  template: `<main class="min-h-screen bg-[#f8fafc] p-5 dark:bg-[#0b1120]">
     <div class="mx-auto max-w-6xl py-6">
-      <header class="mb-7 flex items-center gap-3">
+      <header class="mb-7 flex items-center gap-3.5">
         <span
-          class="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-rose-500 to-violet-700 text-white"
-          ><span class="material-symbols-rounded">nutrition</span></span
+          class="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-600 to-purple-700 text-white shadow-lg shadow-indigo-500/25"
+          ><span class="material-symbols-rounded">precision_manufacturing</span></span
         >
         <div>
-          <strong class="text-lg">Odivon MachineCe</strong
-          ><span class="block text-xs text-slate-500">Makine CE çalışma alanı kurulumu</span>
+          <strong class="text-lg font-black tracking-tight text-slate-900 dark:text-white"
+            >Odivon MachineCE</strong
+          ><span class="block text-xs font-medium text-slate-500"
+            >Makine Emniyeti ve CE Uygunluk Çalışma Alanı Kurulumu</span
+          >
         </div>
       </header>
-      <div class="grid gap-6 lg:grid-cols-[.72fr_1.28fr]">
-        <aside class="odv-card overflow-hidden p-7">
-          <span class="text-xs font-black uppercase tracking-widest text-violet-600"
-            >KURULUŞ PROFİLİ · 1/1</span
+      <div class="grid gap-6 lg:grid-cols-[.75fr_1.25fr]">
+        <aside
+          class="odv-card relative overflow-hidden !bg-gradient-to-br from-slate-900 via-indigo-950 to-violet-950 p-7 text-white"
+        >
+          <span
+            class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-indigo-200"
+            >KURULUŞ PROFİLİ · ADIM 1/1</span
           >
-          <h1 class="mt-3 text-3xl font-black">Pazara hazır etiket uyum temelini kurun</h1>
-          <p class="text-sm leading-6 text-slate-500">
-            Bu bilgiler ürün dosyaları, pazar onayları ve resmi denetim paketlerinde kullanılır.
+          <h1 class="mt-4 text-2xl sm:text-3xl font-black tracking-tight">
+            Denetime hazır CE kanıt zinciri temelini kurun
+          </h1>
+          <p class="mt-2 text-xs sm:text-sm leading-relaxed text-slate-300">
+            Bu bilgiler teknik dosyalarda, EN ISO 12100 risk raporlarında ve AT uygunluk
+            beyanlarında (2006/42/EC · AB 2023/1230) resmi üretici/işletmeci kimliği olarak
+            kullanılır.
           </p>
-          <ul class="mt-7 space-y-4 text-sm">
-            <li class="flex gap-3">
-              <span class="material-symbols-rounded text-emerald-600">check_circle</span>Tenant
-              izolasyonu ve rol tabanlı erişim
+          <ul class="mt-7 space-y-4 text-xs sm:text-sm text-slate-200">
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-rounded text-emerald-400">check_circle</span>
+              <span>Tenant izolasyonu ve rol tabanlı mühendislik yetkileri</span>
             </li>
-            <li class="flex gap-3">
-              <span class="material-symbols-rounded text-emerald-600">check_circle</span>Tesis bazlı
-              ürün, reçete ve pazar bazlı inceleme takvimi
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-rounded text-emerald-400">check_circle</span>
+              <span>Tesis bazlı makine envanteri, standart matrisi ve periyodik inceleme takvimi</span>
             </li>
-            <li class="flex gap-3">
-              <span class="material-symbols-rounded text-emerald-600">check_circle</span>Değişmez
-              denetim izi ve kanıt paketi
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-rounded text-emerald-400">check_circle</span>
+              <span>Değişmez denetim izi (Audit Trail) ve tek tıkla teknik dosya paketi</span>
             </li>
           </ul>
         </aside>
         <section class="odv-card p-7 sm:p-9">
-          <h2 class="m-0 text-xl font-black">Kuruluş, üretim tesisi ve mevzuat sorumlusu</h2>
+          <h2 class="m-0 text-xl font-black text-slate-900 dark:text-white">
+            Kuruluş, üretim tesisi ve teknik dosya sorumlusu
+          </h2>
           <form class="mt-6 grid gap-4 sm:grid-cols-2" (submit)="complete($event)">
             <label class="sm:col-span-2"
-              ><span class="mb-1.5 block text-xs font-bold">Ticari unvan *</span
-              ><input
+              ><span class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Ticari unvan *</span>
+              <input
                 class="odv-input"
                 autocomplete="organization"
                 [formField]="setupForm.legalName" /></label
             ><label
-              ><span class="mb-1.5 block text-xs font-bold">Vergi / kayıt numarası</span
-              ><input class="odv-input" [formField]="setupForm.taxNumber" /></label
+              ><span class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Vergi / kayıt numarası</span>
+              <input class="odv-input" [formField]="setupForm.taxNumber" /></label
             ><label
-              ><span class="mb-1.5 block text-xs font-bold">Üretim tesisi *</span
-              ><input class="odv-input" [formField]="setupForm.productionSite" /></label
+              ><span class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Üretim tesisi / Fabrika *</span>
+              <input class="odv-input" [formField]="setupForm.productionSite" /></label
             ><label
-              ><span class="mb-1.5 block text-xs font-bold">Ülke *</span
-              ><input class="odv-input" [formField]="setupForm.country" /></label
+              ><span class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Ülke *</span>
+              <input class="odv-input" [formField]="setupForm.country" /></label
             ><label
-              ><span class="mb-1.5 block text-xs font-bold">Saat dilimi *</span
-              ><select class="odv-input" [formField]="setupForm.timezone">
+              ><span class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Saat dilimi *</span>
+              <select class="odv-input" [formField]="setupForm.timezone">
                 <option value="Europe/Istanbul">Europe/Istanbul</option>
                 <option value="Europe/Berlin">Europe/Berlin</option>
                 <option value="Europe/London">Europe/London</option>
               </select></label
             ><label class="sm:col-span-2"
-              ><span class="mb-1.5 block text-xs font-bold">Hedef pazarlar *</span
-              ><input
+              ><span class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Hedef pazarlar & Direktif kapsamı *</span>
+              <input
                 class="odv-input"
-                placeholder="TR, EU, UK"
+                placeholder="TR, EU (CE), UK (UKCA)"
                 [formField]="setupForm.targetMarketsText" /></label
             ><label
-              ><span class="mb-1.5 block text-xs font-bold">Mevzuat sorumlusu *</span
-              ><input class="odv-input" [formField]="setupForm.regulatoryContactName" /></label
+              ><span class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Teknik dosya / CE sorumlusu *</span>
+              <input class="odv-input" [formField]="setupForm.regulatoryContactName" /></label
             ><label
-              ><span class="mb-1.5 block text-xs font-bold">Sorumlu e-posta *</span
-              ><input
+              ><span class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Sorumlu e-posta *</span>
+              <input
                 class="odv-input"
                 type="email"
                 [formField]="setupForm.regulatoryContactEmail" /></label
             ><label
-              ><span class="mb-1.5 block text-xs font-bold">Sorumlu telefon</span
-              ><input class="odv-input" [formField]="setupForm.regulatoryContactPhone"
+              ><span class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Sorumlu telefon</span>
+              <input class="odv-input" [formField]="setupForm.regulatoryContactPhone"
             /></label>
             @if (error()) {
               <div
                 role="alert"
-                class="sm:col-span-2 rounded-xl bg-rose-50 p-3 text-sm text-rose-700"
+                class="sm:col-span-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs sm:text-sm font-bold text-rose-700"
               >
                 {{ error() }}
               </div>
@@ -103,6 +115,7 @@ import { AuthStore } from '../../core/auth/auth-store';
                 type="submit"
                 [disabled]="saving()"
               >
+                <span class="material-symbols-rounded">rocket_launch</span>
                 {{ saving() ? 'Kuruluyor…' : 'Çalışma alanını tamamla' }}
               </button>
             </div>

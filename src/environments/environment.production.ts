@@ -1,9 +1,12 @@
 const runtime = (
-  globalThis as typeof globalThis & { __ODIVON_CONFIG__?: { appCheckSiteKey?: string } }
+  globalThis as typeof globalThis & {
+    __ODIVON_CONFIG__?: { apiBaseUrl?: string; appCheckSiteKey?: string };
+  }
 ).__ODIVON_CONFIG__;
+
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://mainapi.odivon.com/api/v1',
+  apiBaseUrl: runtime?.apiBaseUrl || 'https://mainapi.odivon.com/api/v1',
   firebase: {
     apiKey: 'AIzaSyAu1u-wKeR9RQBhp6lqUvo64ZbQ5fNDIGg',
     authDomain: 'odivon-main-api-a2095.firebaseapp.com',
@@ -14,4 +17,3 @@ export const environment = {
   },
   appCheckSiteKey: runtime?.appCheckSiteKey ?? '',
 } as const;
-

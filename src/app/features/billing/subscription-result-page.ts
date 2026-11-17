@@ -7,26 +7,31 @@ import { BillingApi } from './billing.api';
   template: `<div class="mx-auto max-w-2xl py-10">
     <section class="odv-card p-8 text-center sm:p-11" aria-live="polite">
       @if (loading()) {
-        <span class="material-symbols-rounded animate-spin !text-5xl text-violet-600"
+        <span class="material-symbols-rounded animate-spin !text-5xl text-indigo-600"
           >progress_activity</span
         >
-        <h1 class="mt-5 text-2xl font-black">Ödeme doğrulanıyor</h1>
+        <h1 class="mt-5 text-2xl font-black text-slate-900 dark:text-white">Ödeme doğrulanıyor</h1>
       } @else if (state() === 'succeeded') {
         <span
-          class="mx-auto grid size-16 place-items-center rounded-3xl bg-emerald-100 text-emerald-700"
+          class="mx-auto grid size-16 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/70 dark:text-emerald-400"
           ><span class="material-symbols-rounded !text-4xl">check_circle</span></span
         >
-        <h1 class="mt-5 text-3xl font-black">Aboneliğiniz aktif</h1>
-        <p class="text-sm text-slate-500">
-          Ödeme sunucu tarafında doğrulandı ve dönem tenant hesabınıza işlendi.
+        <h1 class="mt-5 text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+          Aboneliğiniz aktif
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500">
+          Ödeme sunucu tarafında doğrulandı ve dönem MachineCE tenant hesabınıza işlendi.
         </p>
         <a class="odv-btn-primary mt-5" routerLink="/billing">Aboneliğe dön</a>
       } @else {
-        <span class="mx-auto grid size-16 place-items-center rounded-3xl bg-rose-100 text-rose-700"
+        <span
+          class="mx-auto grid size-16 place-items-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-950/70 dark:text-rose-400"
           ><span class="material-symbols-rounded !text-4xl">error</span></span
         >
-        <h1 class="mt-5 text-3xl font-black">Ödeme tamamlanamadı</h1>
-        <p class="text-sm text-slate-500">
+        <h1 class="mt-5 text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+          Ödeme tamamlanamadı
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500">
           Doğrulanmış tahsilat alınmadı. Yeni bir ödeme oturumu başlatabilirsiniz.
         </p>
         <a class="odv-btn-primary mt-5" routerLink="/billing">Planlara dön</a>
@@ -62,4 +67,3 @@ export class SubscriptionResultPage {
     }
   }
 }
-

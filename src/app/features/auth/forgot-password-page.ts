@@ -6,30 +6,35 @@ import { AuthStore } from '../../core/auth/auth-store';
 @Component({
   selector: 'app-forgot-password-page',
   imports: [FormField, RouterLink],
-  template: `<main class="grid min-h-screen place-items-center bg-slate-50 p-5 dark:bg-[#0b1120]">
+  template: `<main class="grid min-h-screen place-items-center bg-[#f8fafc] p-5 dark:bg-[#0b1120]">
     <section class="odv-card w-full max-w-md p-8 sm:p-10" aria-labelledby="reset-title">
       <a
         routerLink="/login"
-        class="mb-7 inline-flex items-center gap-2 text-sm font-bold text-violet-600"
+        class="mb-7 inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-400"
         ><span class="material-symbols-rounded directional-icon">arrow_back</span>Girişe dön</a
       >
       <span
-        class="grid size-14 place-items-center rounded-2xl bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300"
+        class="grid size-14 place-items-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/70 dark:text-indigo-400"
         ><span class="material-symbols-rounded !text-3xl">lock_reset</span></span
       >
-      <h1 id="reset-title" class="mb-2 mt-5 text-3xl font-black">Şifrenizi sıfırlayın</h1>
-      <p class="mb-6 text-sm leading-6 text-slate-500">
+      <h1 id="reset-title" class="mb-2 mt-5 text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+        Şifrenizi sıfırlayın
+      </h1>
+      <p class="mb-6 text-xs sm:text-sm leading-6 text-slate-500">
         Hesabınızla eşleşen adrese tek kullanımlık, güvenli bir sıfırlama bağlantısı gönderilir.
       </p>
       @if (sent()) {
-        <div role="status" class="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">
+        <div
+          role="status"
+          class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs sm:text-sm font-semibold text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/60 dark:text-emerald-300"
+        >
           Bağlantı gönderildi. Gelen kutunuzu ve spam klasörünü kontrol edin.
         </div>
       } @else {
         <form class="space-y-4" (submit)="send($event)">
           <label class="block"
-            ><span class="mb-1.5 block text-xs font-bold">E-posta adresi</span
-            ><input
+            ><span class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">E-posta adresi</span>
+            <input
               class="odv-input"
               type="email"
               autocomplete="email"
@@ -74,4 +79,3 @@ export class ForgotPasswordPage {
     });
   }
 }
-

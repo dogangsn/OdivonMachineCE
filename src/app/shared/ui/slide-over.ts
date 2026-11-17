@@ -9,7 +9,7 @@ import { TranslatePipe } from '../../core/i18n/i18n';
   template: `
     @if (open()) {
       <div
-        class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm"
+        class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs"
         (click)="requestClose()"
       ></div>
       <section
@@ -19,33 +19,33 @@ import { TranslatePipe } from '../../core/i18n/i18n';
         [attr.aria-label]="title()"
         tabindex="-1"
         (keydown.tab)="trapFocus($event)"
-        class="fixed inset-y-0 end-0 z-50 flex w-full flex-col overflow-hidden border-s border-slate-200 bg-white shadow-[0_0_80px_rgba(15,23,42,.28)] outline-none dark:border-slate-800 dark:bg-slate-900"
+        class="fixed inset-y-0 end-0 z-50 flex w-full flex-col overflow-hidden border-s border-slate-200 bg-white shadow-2xl outline-none dark:border-slate-800 dark:bg-slate-900"
         [class.max-w-3xl]="wide()"
         [class.max-w-lg]="!wide()"
       >
-        <div class="h-1 bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400"></div>
+        <div class="h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400"></div>
         <header
-          class="border-b border-slate-200 bg-gradient-to-b from-violet-50/80 to-white px-6 py-5 dark:border-slate-800 dark:from-violet-950/30 dark:to-slate-900 sm:px-8"
+          class="border-b border-slate-200/80 bg-gradient-to-b from-indigo-50/60 to-white px-6 py-5 dark:border-slate-800 dark:from-indigo-950/30 dark:to-slate-900 sm:px-8"
         >
           <div class="flex items-start justify-between gap-4">
-            <div class="flex min-w-0 items-start gap-3">
+            <div class="flex min-w-0 items-start gap-3.5">
               <span
-                class="grid size-11 shrink-0 place-items-center rounded-2xl bg-violet-600 text-white shadow-lg shadow-violet-500/25"
+                class="grid size-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md shadow-indigo-500/25"
               >
                 <span class="material-symbols-rounded">{{ icon() }}</span>
               </span>
               <div class="min-w-0">
                 <div
-                  class="mb-1 text-[10px] font-extrabold uppercase tracking-[.18em] text-violet-600 dark:text-violet-300"
+                  class="mb-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-400"
                 >
                   {{ eyebrow() }}
                 </div>
-                <h2 class="m-0 text-xl font-black tracking-tight text-slate-950 dark:text-white">
+                <h2 class="m-0 text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
                   {{ title() }}
                 </h2>
                 @if (description()) {
                   <p
-                    class="mb-0 mt-1 max-w-xl text-xs leading-5 text-slate-500 dark:text-slate-400"
+                    class="mb-0 mt-1 max-w-xl text-xs leading-relaxed text-slate-500 dark:text-slate-400"
                   >
                     {{ description() }}
                   </p>
@@ -64,26 +64,26 @@ import { TranslatePipe } from '../../core/i18n/i18n';
         </header>
         <form class="flex min-h-0 flex-1 flex-col" (submit)="submit($event)">
           <div
-            class="custom-scroll flex-1 space-y-6 overflow-y-auto overscroll-contain bg-slate-50/60 p-5 dark:bg-slate-950/30 sm:p-8"
+            class="custom-scroll flex-1 space-y-5 overflow-y-auto overscroll-contain bg-slate-50/70 p-5 dark:bg-slate-950/40 sm:p-7"
           >
             <ng-content />
           </div>
           <footer
-            class="flex items-center justify-between gap-3 border-t border-slate-200 bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900 sm:px-8"
+            class="flex items-center justify-between gap-3 border-t border-slate-200/80 bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900 sm:px-8"
           >
             <span
               class="hidden items-center gap-1.5 text-[11px] font-semibold text-slate-400 sm:inline-flex"
             >
-              <span class="material-symbols-rounded !text-base">lock</span>Değişiklikler güvenli
-              bağlantıyla kaydedilir
+              <span class="material-symbols-rounded !text-base text-emerald-500">verified_user</span
+              >Değişiklikler denetim iziyle kaydedilir
             </span>
             <div class="ms-auto flex items-center gap-3">
               <button type="button" class="odv-btn-ghost" (click)="requestClose()">
                 {{ 'common.cancel' | t }}
               </button>
               <button type="submit" class="odv-btn-primary" [disabled]="submitting()">
-                <span class="material-symbols-rounded">check</span
-                >{{ submitting() ? 'Kaydediliyor…' : submitLabel() }}
+                <span class="material-symbols-rounded">check</span>
+                {{ submitting() ? 'Kaydediliyor…' : submitLabel() }}
               </button>
             </div>
           </footer>
@@ -125,6 +125,7 @@ export class SlideOver {
         showCancelButton: true,
         confirmButtonText: 'Çık',
         cancelButtonText: 'Vazgeç',
+        buttonsStyling: false,
         customClass: {
           popup: 'odv-swal-popup',
           confirmButton: 'odv-swal-danger',

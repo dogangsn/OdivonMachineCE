@@ -4,17 +4,18 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 @Component({
   selector: 'app-legal-page',
   imports: [RouterLink],
-  template: `<main class="min-h-screen bg-slate-50 p-5 dark:bg-[#0b1120]">
+  template: `<main class="min-h-screen bg-[#f8fafc] p-5 dark:bg-[#0b1120]">
     <article class="odv-card mx-auto max-w-4xl p-7 sm:p-11">
       <a
         routerLink="/register"
-        class="inline-flex items-center gap-2 text-sm font-bold text-violet-600"
+        class="inline-flex items-center gap-2 text-sm font-bold text-indigo-600 dark:text-indigo-400"
         ><span class="material-symbols-rounded directional-icon">arrow_back</span>Kayıt ekranına
         dön</a
-      ><span class="mt-8 block text-xs font-black uppercase tracking-[.18em] text-violet-600"
-        >ODIVON FIRESAFE</span
+      ><span
+        class="mt-8 block text-xs font-black uppercase tracking-[.18em] text-indigo-600 dark:text-indigo-400"
+        >ODIVON MACHINECE</span
       >
-      <h1 class="mt-3 text-3xl font-black">
+      <h1 class="mt-3 text-3xl font-black text-slate-900 dark:text-white">
         {{ privacy ? 'Gizlilik ve Veri İşleme Bildirimi' : 'SaaS Kullanım Koşulları' }}
       </h1>
       <p class="text-xs text-slate-500">Son güncelleme: 27 Ekim 2026</p>
@@ -26,8 +27,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
             </h2>
             <p>
               Odivon; kimlik, iletişim, tenant, denetim izi ve faturalama verilerini hizmetin
-              güvenli sunumu için işler. Müşteri kuruluş, makine CE operasyon verilerinin
-              veri sorumlusudur.
+              güvenli sunumu için işler. Müşteri kuruluş, makine CE ve teknik dosya operasyon
+              verilerinin veri sorumlusudur.
             </p>
           </section>
           <section>
@@ -49,8 +50,9 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
           <section>
             <h2 class="text-xl font-black text-slate-900 dark:text-white">Hizmetin kapsamı</h2>
             <p>
-              Odivon MachineCe; ürün kartı, reçete, alerjen kontrolü, besin değeri ve pazar onayı,
-              denetim izi ve raporlama araçları sunan abonelik tabanlı bir yazılımdır.
+              Odivon MachineCE; 2006/42/EC ve AB 2023/1230 kapsamında makine envanteri, EN ISO 12100
+              risk değerlendirmesi, harmonize standart matrisi, teknik dosya, AT uygunluk beyanı,
+              değişmez denetim izi ve raporlama araçları sunan abonelik tabanlı bir yazılımdır.
             </p>
           </section>
           <section>
@@ -64,7 +66,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
             <h2 class="text-xl font-black text-slate-900 dark:text-white">Müşteri sorumluluğu</h2>
             <p>
               Yazılım karar desteği ve kayıt altyapısı sağlar; saha doğruluğu, mevzuata uygunluk ve
-              yetkili personel kullanımı müşterinin sorumluluğundadır.
+              yetkili mühendis/personel kullanımı müşterinin sorumluluğundadır.
             </p>
           </section>
         }
@@ -75,4 +77,3 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 export class LegalPage {
   readonly privacy = inject(ActivatedRoute).snapshot.data['document'] === 'privacy';
 }
-

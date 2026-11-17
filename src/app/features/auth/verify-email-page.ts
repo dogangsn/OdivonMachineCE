@@ -4,24 +4,26 @@ import { AuthStore } from '../../core/auth/auth-store';
 
 @Component({
   selector: 'app-verify-email-page',
-  template: `<main class="grid min-h-screen place-items-center bg-slate-50 p-5 dark:bg-[#0b1120]">
+  template: `<main class="grid min-h-screen place-items-center bg-[#f8fafc] p-5 dark:bg-[#0b1120]">
     <section
       class="odv-card w-full max-w-lg p-8 text-center sm:p-11"
       aria-labelledby="verify-title"
     >
       <span
-        class="mx-auto grid size-16 place-items-center rounded-3xl bg-violet-100 text-violet-700"
+        class="mx-auto grid size-16 place-items-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/70 dark:text-indigo-400"
         ><span class="material-symbols-rounded !text-3xl">mark_email_unread</span></span
       >
-      <h1 id="verify-title" class="mb-3 mt-6 text-3xl font-black">E-posta adresinizi doğrulayın</h1>
-      <p class="mx-auto max-w-md text-sm leading-6 text-slate-500">
+      <h1 id="verify-title" class="mb-3 mt-6 text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+        E-posta adresinizi doğrulayın
+      </h1>
+      <p class="mx-auto max-w-md text-xs sm:text-sm leading-6 text-slate-500">
         <strong>{{ auth.session()?.email }}</strong> adresine gönderilen bağlantıyı açın. Bu adım
-        tesis ve denetim verilerinizi korur.
+        tesis, makine envanteri ve CE denetim verilerinizi korur.
       </p>
       @if (message()) {
         <div
           role="status"
-          class="my-5 rounded-xl bg-violet-50 p-3 text-sm font-semibold text-violet-800"
+          class="my-5 rounded-xl bg-indigo-50 p-3 text-xs sm:text-sm font-semibold text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300"
         >
           {{ message() }}
         </div>
@@ -29,7 +31,7 @@ import { AuthStore } from '../../core/auth/auth-store';
       @if (error()) {
         <div
           role="alert"
-          class="my-5 rounded-xl bg-rose-50 p-3 text-sm font-semibold text-rose-700"
+          class="my-5 rounded-xl bg-rose-50 p-3 text-xs sm:text-sm font-semibold text-rose-700"
         >
           {{ error() }}
         </div>
@@ -106,4 +108,3 @@ export class VerifyEmailPage {
     void this.router.navigateByUrl('/login');
   }
 }
-

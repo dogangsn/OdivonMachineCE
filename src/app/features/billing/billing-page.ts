@@ -18,12 +18,13 @@ import {
   template: `<div class="space-y-7">
       <app-page-header
         eyebrow="SAAS ABONELİK MERKEZİ"
+        icon="credit_card"
         title="Plan, Kullanım ve Ödeme"
-        description="Kapasitenizi izleyin, planınızı seçin ve sunucu tarafından doğrulanan güvenli ödemeleri yönetin."
+        description="Makine CE kayıt kapasitenizi izleyin, planınızı seçin ve sunucu tarafından doğrulanan güvenli ödemeleri yönetin."
       />
       @if (loading()) {
         <div class="grid min-h-80 place-items-center">
-          <span class="material-symbols-rounded animate-spin text-5xl text-violet-600"
+          <span class="material-symbols-rounded animate-spin !text-5xl text-indigo-600"
             >progress_activity</span
           >
         </div>
@@ -32,113 +33,142 @@ import {
       } @else {
         <section class="grid gap-5 lg:grid-cols-[1.4fr_.6fr]">
           <article
-            class="overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-violet-950 to-indigo-950 p-7 text-white shadow-xl"
+            class="overflow-hidden rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900 via-indigo-950 to-violet-950 p-7 text-white shadow-xl"
           >
             <div class="flex flex-wrap items-start justify-between gap-5">
               <div>
                 <span
-                  class="rounded-full bg-white/10 px-3 py-1 text-[10px] font-black tracking-widest"
-                  >{{ statusLabel(status()!) }}</span
+                  class="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/20 px-3 py-1 text-[10px] font-black tracking-widest text-emerald-300"
                 >
-                <h2 class="mb-2 mt-5 text-3xl font-black">MachineCe çalışma alanınız güvende</h2>
-                <p class="m-0 max-w-2xl text-sm leading-6 text-slate-300">
-                  Denetim kayıtları tenant sınırında korunur; kapasite ve gelişmiş rapor hakları
-                  seçili plana göre uygulanır.
+                  <span class="size-1.5 animate-pulse rounded-full bg-emerald-400"></span>
+                  {{ statusLabel(status()!) }}
+                </span>
+                <h2 class="mb-2 mt-4 text-2xl sm:text-3xl font-black tracking-tight">
+                  MachineCE çalışma alanınız güvende
+                </h2>
+                <p class="m-0 max-w-2xl text-xs sm:text-sm leading-6 text-slate-300">
+                  Teknik dosya ve denetim kayıtları tenant sınırında korunur; kapasite ve gelişmiş
+                  uyumluluk paketi hakları seçili plana göre uygulanır.
                 </p>
               </div>
-              <span class="material-symbols-rounded !text-6xl text-rose-300">nutrition</span>
+              <span
+                class="grid size-14 place-items-center rounded-2xl bg-white/10 text-indigo-300"
+              >
+                <span class="material-symbols-rounded !text-3xl">precision_manufacturing</span>
+              </span>
             </div>
             <div class="mt-7 grid gap-3 sm:grid-cols-3">
-              <div class="rounded-2xl bg-white/10 p-4">
-                <strong class="block text-2xl"
+              <div class="rounded-2xl border border-white/10 bg-white/10 p-4">
+                <strong class="block text-2xl font-black"
                   >{{ entitlements()?.usage?.records ?? 0 }} /
                   {{ entitlements()?.records ?? '∞' }}</strong
-                ><span class="text-xs text-slate-300">Etiket kaydı</span>
+                ><span class="text-xs text-slate-300">CE & Makine kaydı</span>
               </div>
-              <div class="rounded-2xl bg-white/10 p-4">
-                <strong class="block text-2xl">{{ entitlements()?.users ?? '∞' }}</strong
-                ><span class="text-xs text-slate-300">Kullanıcı limiti</span>
+              <div class="rounded-2xl border border-white/10 bg-white/10 p-4">
+                <strong class="block text-2xl font-black">{{
+                  entitlements()?.users ?? '∞'
+                }}</strong
+                ><span class="text-xs text-slate-300">Mühendis / Kullanıcı limiti</span>
               </div>
-              <div class="rounded-2xl bg-white/10 p-4">
-                <strong class="block text-2xl">{{
+              <div class="rounded-2xl border border-white/10 bg-white/10 p-4">
+                <strong class="block text-2xl font-black">{{
                   entitlements()?.advancedReports ? 'Açık' : 'Temel'
                 }}</strong
-                ><span class="text-xs text-slate-300">Rapor seviyesi</span>
+                ><span class="text-xs text-slate-300">Teknik dosya paketi</span>
               </div>
             </div>
           </article>
-          <article class="odv-card p-6">
-            <span class="text-xs font-black text-violet-600">DÖNEM DURUMU</span>
-            <h3 class="mt-3 text-2xl font-black">{{ status()?.daysLeft ?? '—' }} gün</h3>
-            <p class="text-sm text-slate-500">
-              {{
-                status()?.subscriptionEndsAt
-                  ? 'Dönem bitişi: ' + (status()?.subscriptionEndsAt | date: 'dd.MM.yyyy')
-                  : '14 günlük deneme dönemi'
-              }}
-            </p>
-            <div class="mt-5 h-2 overflow-hidden rounded-full bg-slate-100">
-              <div
-                class="h-full w-2/3 rounded-full bg-gradient-to-r from-emerald-500 to-violet-500"
-              ></div>
+          <article class="kpi-card flex flex-col justify-between p-6">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
+                >DÖNEM DURUMU</span
+              >
+              <h3 class="mt-3 text-3xl font-black text-slate-900 dark:text-white">
+                {{ status()?.daysLeft ?? '—' }} gün
+              </h3>
+              <p class="text-xs sm:text-sm text-slate-500">
+                {{
+                  status()?.subscriptionEndsAt
+                    ? 'Dönem bitişi: ' + (status()?.subscriptionEndsAt | date: 'dd.MM.yyyy')
+                    : '14 günlük kurumsal deneme dönemi'
+                }}
+              </p>
+            </div>
+            <div class="mt-5">
+              <div class="h-2.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                <div
+                  class="h-full w-2/3 rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500"
+                ></div>
+              </div>
             </div>
           </article>
         </section>
         <section>
           <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 class="m-0 text-xl font-black">Planlar</h2>
-              <p class="mb-0 mt-1 text-sm text-slate-500">Yıllık ödemede iki aylık avantaj.</p>
+              <h2 class="m-0 text-xl font-black text-slate-900 dark:text-white">Planlar</h2>
+              <p class="mb-0 mt-1 text-xs sm:text-sm text-slate-500">
+                Yıllık ödemede iki aylık kurumsal avantaj.
+              </p>
             </div>
-            <div class="inline-flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+            <div
+              class="inline-flex rounded-2xl border border-slate-200/80 bg-slate-100 p-1 dark:border-slate-700/80 dark:bg-slate-800"
+            >
               <button
                 type="button"
-                class="rounded-lg px-4 py-2 text-xs font-bold"
+                class="rounded-xl px-4 py-2 text-xs font-bold transition-all"
                 [class.bg-white]="cycle() === 'monthly'"
+                [class.dark:bg-slate-700]="cycle() === 'monthly'"
+                [class.shadow-xs]="cycle() === 'monthly'"
                 (click)="cycle.set('monthly')"
               >
                 Aylık</button
               ><button
                 type="button"
-                class="rounded-lg px-4 py-2 text-xs font-bold"
+                class="rounded-xl px-4 py-2 text-xs font-bold transition-all"
                 [class.bg-white]="cycle() === 'yearly'"
+                [class.dark:bg-slate-700]="cycle() === 'yearly'"
+                [class.shadow-xs]="cycle() === 'yearly'"
                 (click)="cycle.set('yearly')"
               >
                 Yıllık
               </button>
             </div>
           </div>
-          <div class="grid gap-4 lg:grid-cols-3">
+          <div class="grid gap-5 lg:grid-cols-3">
             @for (plan of plans(); track plan.id; let index = $index) {
               <article
-                class="odv-card relative p-6"
+                class="kpi-card relative flex flex-col justify-between p-6"
                 [class.ring-2]="index === 1"
-                [class.ring-violet-500]="index === 1"
+                [class.ring-indigo-500]="index === 1"
               >
-                @if (entitlements()?.planId === plan.id) {
-                  <span
-                    class="absolute end-4 top-4 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-black text-emerald-700"
-                    >MEVCUT PLAN</span
-                  >
-                }
-                <h3 class="m-0 text-xl font-black">{{ plan.name }}</h3>
-                <p class="mt-2 text-sm text-slate-500">{{ description(plan.id) }}</p>
-                <div class="my-6">
-                  <strong class="text-4xl font-black">{{
-                    price(plan) | currency: 'TRY' : 'symbol-narrow' : '1.0-0' : 'tr-TR'
-                  }}</strong
-                  ><span class="text-xs text-slate-500">
-                    / {{ cycle() === 'monthly' ? 'ay' : 'yıl' }}</span
-                  >
-                </div>
-                <ul class="mb-6 space-y-3 text-sm">
-                  @for (feature of features(plan.id); track feature) {
-                    <li class="flex gap-2">
-                      <span class="material-symbols-rounded text-emerald-600">check_circle</span
-                      >{{ feature }}
-                    </li>
+                <div>
+                  @if (entitlements()?.planId === plan.id) {
+                    <span class="odv-badge-success absolute end-4 top-4 !text-[10px]"
+                      >MEVCUT PLAN</span
+                    >
                   }
-                </ul>
+                  <h3 class="m-0 text-xl font-black text-slate-900 dark:text-white">
+                    {{ plan.name }}
+                  </h3>
+                  <p class="mt-2 text-xs sm:text-sm text-slate-500">{{ description(plan.id) }}</p>
+                  <div class="my-6">
+                    <strong class="text-4xl font-black text-slate-900 dark:text-white">{{
+                      price(plan) | currency: 'TRY' : 'symbol-narrow' : '1.0-0' : 'tr-TR'
+                    }}</strong
+                    ><span class="text-xs font-semibold text-slate-500">
+                      / {{ cycle() === 'monthly' ? 'ay' : 'yıl' }}</span
+                    >
+                  </div>
+                  <ul class="mb-6 space-y-3 text-xs sm:text-sm">
+                    @for (feature of features(plan.id); track feature) {
+                      <li class="flex items-center gap-2.5">
+                        <span class="material-symbols-rounded text-emerald-600">check_circle</span
+                        >{{ feature }}
+                      </li>
+                    }
+                  </ul>
+                </div>
                 <button
                   type="button"
                   class="w-full"
@@ -158,11 +188,13 @@ import {
           </div>
         </section>
         <section class="odv-card overflow-hidden">
-          <div class="border-b border-slate-200 p-5 dark:border-slate-800">
-            <h2 class="m-0 text-xl font-black">Ödeme ve makbuz geçmişi</h2>
+          <div class="border-b border-slate-200/80 p-5 dark:border-slate-800">
+            <h2 class="m-0 text-lg font-black text-slate-900 dark:text-white">
+              Ödeme ve makbuz geçmişi
+            </h2>
           </div>
-          <div class="overflow-x-auto">
-            <table class="w-full min-w-[760px]">
+          <div class="overflow-x-auto custom-scroll">
+            <table class="w-full min-w-[760px] border-collapse">
               <thead>
                 <tr>
                   <th class="odv-th">Makbuz</th>
@@ -174,7 +206,7 @@ import {
               </thead>
               <tbody>
                 @for (payment of history(); track payment.id) {
-                  <tr>
+                  <tr class="hover:bg-indigo-50/40 dark:hover:bg-slate-800/60">
                     <td class="odv-td font-mono text-xs">{{ payment.receiptNo }}</td>
                     <td class="odv-td font-bold">{{ payment.planId }}</td>
                     <td class="odv-td">
@@ -188,7 +220,7 @@ import {
                   </tr>
                 } @empty {
                   <tr>
-                    <td colspan="5" class="p-10 text-center text-sm text-slate-500">
+                    <td colspan="5" class="p-10 text-center text-xs sm:text-sm text-slate-500">
                       Henüz tamamlanmış ödeme yok.
                     </td>
                   </tr>
@@ -333,16 +365,16 @@ export class BillingPage {
   }
   description(id: string) {
     return id === 'starter'
-      ? 'Tek üretim tesisli ekipler için temel etiket uyumu.'
+      ? 'Tek üretim tesisli ekipler için temel Makine CE ve teknik dosya uyumu.'
       : id === 'pro'
-        ? 'Çok tesisli operasyonlar ve gelişmiş raporlama.'
-        : 'Kurumsal ölçekte sınırsız yönetişim ve destek.';
+        ? 'Çok tesisli operasyonlar, EN ISO 12100 risk matrisi ve gelişmiş CE raporlama.'
+        : 'Kurumsal ölçekte sınırsız makine envanteri, denetim paketi ve öncelikli destek.';
   }
   features(id: string) {
     return id === 'starter'
-      ? ['100 kayıt', '3 kullanıcı', 'Temel denetim raporu']
+      ? ['100 CE / makine kaydı', '3 mühendis kullanıcısı', 'Temel teknik dosya raporu']
       : id === 'pro'
-        ? ['1.500 kayıt', '15 kullanıcı', 'Gelişmiş uyum raporları']
-        : ['Sınırsız kayıt', 'Sınırsız kullanıcı', 'Öncelikli destek'];
+        ? ['1.500 CE / makine kaydı', '15 mühendis kullanıcısı', 'Gelişmiş CE kanıt paketi']
+        : ['Sınırsız CE kaydı', 'Sınırsız kullanıcı', 'Öncelikli kurumsal destek'];
   }
 }

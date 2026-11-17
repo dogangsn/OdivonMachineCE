@@ -1,18 +1,77 @@
 @use '@angular/material' as mat;
 
 :root {
-  @include mat.theme((color: (primary: mat.$violet-palette, tertiary: mat.$blue-palette), typography: "Plus Jakarta Sans", density: 0));
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$violet-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: 'Plus Jakarta Sans',
+      density: 0,
+    )
+  );
   color-scheme: light;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+
+  --odivon-bg-default: #f8fafc;
+  --odivon-bg-card: #ffffff;
+  --odivon-text-default: #0f172a;
+  --odivon-text-secondary: #64748b;
+  --odivon-border: #e2e8f0;
+  --odivon-bg-hover: rgba(99, 102, 241, 0.08);
 }
 
-:root.dark { color-scheme: dark; }
-* { box-sizing: border-box; }
-html, body { min-height: 100%; margin: 0; }
-body { background: radial-gradient(circle at 82% -10%, rgb(124 58 237 / .09), transparent 28rem), #f8fafc; color: #0f172a; }
-.dark body { background: radial-gradient(circle at 82% -10%, rgb(124 58 237 / .16), transparent 30rem), #0b1120; color: #f8fafc; }
-button, input, select { font: inherit; }
-button { cursor: pointer; border: 0; }
+:root.dark {
+  color-scheme: dark;
+  --odivon-bg-default: #0b1120;
+  --odivon-bg-card: #1e293b;
+  --odivon-text-default: #f8fafc;
+  --odivon-text-secondary: #94a3b8;
+  --odivon-border: #334155;
+  --odivon-bg-hover: rgba(99, 102, 241, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background:
+    radial-gradient(circle at 85% -8%, rgb(99 102 241 / 0.08), transparent 32rem),
+    radial-gradient(circle at 12% 105%, rgb(139 92 246 / 0.06), transparent 28rem),
+    var(--odivon-bg-default);
+  color: var(--odivon-text-default);
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at 85% -8%, rgb(99 102 241 / 0.16), transparent 34rem),
+    radial-gradient(circle at 12% 105%, rgb(139 92 246 / 0.12), transparent 30rem),
+    var(--odivon-bg-default);
+  color: var(--odivon-text-default);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+}
+
 .material-symbols-rounded {
   display: inline-block;
   overflow: hidden;
@@ -31,10 +90,75 @@ button { cursor: pointer; border: 0; }
   font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
 }
-.custom-scroll { scrollbar-width: thin; scrollbar-color: #94a3b8 transparent; }
-.rtl .directional-icon { transform: scaleX(-1); }
 
-.odv-swal-popup { border-radius: 1rem !important; font-family: "Plus Jakarta Sans", sans-serif !important; }
-.odv-swal-confirm { border-radius: .75rem !important; background: #6d28d9 !important; }
-.odv-swal-danger { border-radius: .75rem !important; background: #dc2626 !important; }
-.odv-swal-cancel { border-radius: .75rem !important; background: #e2e8f0 !important; color: #334155 !important; }
+.custom-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 transparent;
+}
+
+.rtl .directional-icon {
+  transform: scaleX(-1);
+}
+
+/* SweetAlert2 Enterprise Dialog Overrides */
+html.swal2-shown,
+html.swal2-height-auto,
+body.swal2-shown,
+body.swal2-height-auto {
+  height: 100% !important;
+  min-height: 100% !important;
+}
+
+div.swal2-container {
+  z-index: 10000 !important;
+
+  &.swal2-backdrop-show {
+    background: rgba(15, 23, 42, 0.55) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+  }
+
+  .swal2-popup,
+  .odv-swal-popup {
+    background: var(--odivon-bg-card) !important;
+    color: var(--odivon-text-default) !important;
+    border: 1px solid var(--odivon-border) !important;
+    border-radius: 1.25rem !important;
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35) !important;
+    padding: 1.5rem !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+  }
+}
+
+.odv-swal-confirm,
+.odivon-btn-primary {
+  border-radius: 0.75rem !important;
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%) !important;
+  color: #ffffff !important;
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+  padding: 0.625rem 1.25rem !important;
+  border: 0 !important;
+}
+
+.odv-swal-danger,
+.odivon-btn-danger {
+  border-radius: 0.75rem !important;
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important;
+  color: #ffffff !important;
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+  padding: 0.625rem 1.25rem !important;
+  border: 0 !important;
+}
+
+.odv-swal-cancel,
+.odivon-btn-cancel {
+  border-radius: 0.75rem !important;
+  background: transparent !important;
+  color: var(--odivon-text-secondary) !important;
+  border: 1px solid var(--odivon-border) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+  padding: 0.625rem 1.25rem !important;
+}
