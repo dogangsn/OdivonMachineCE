@@ -44,13 +44,13 @@ const LIVE_EVENTS = [
     <main class="auth-page" id="main">
       <!-- Left Story & Interactive Visual Panel -->
       <section class="story-panel">
-        <div class="brand">
+        <a class="brand" routerLink="/" aria-label="Odivon MachineCE ana sayfaya dön">
           <span aria-hidden="true">O</span>
           <div>
             <strong>ODIVON</strong>
             <small>MACHINE CE</small>
           </div>
-        </div>
+        </a>
 
         <p class="eyebrow">MAKİNE EMNİYETİ & CE UYUMLULUK BULUTU · 2006/42/EC · AB 2023/1230</p>
         <h1>
@@ -376,6 +376,7 @@ const LIVE_EVENTS = [
           </ul>
 
           <nav class="legal" aria-label="Yasal bağlantılar">
+            <a routerLink="/">Ana Sayfa & Paketler</a>
             <a routerLink="/legal/terms">Kullanım Koşulları</a>
             <a routerLink="/legal/privacy">Gizlilik Bildirimi</a>
             <a routerLink="/forgot-password">Şifre Sıfırlama</a>
@@ -417,6 +418,8 @@ const LIVE_EVENTS = [
       align-items: center;
       gap: 0.75rem;
       letter-spacing: 0.1em;
+      color: inherit;
+      text-decoration: none;
     }
     .brand span {
       display: grid;

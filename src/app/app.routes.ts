@@ -9,6 +9,11 @@ import { PRODUCT_NAVIGATION } from './domain/domain-navigation';
 
 export const routes: Routes = [
   {
+    path: '',
+    pathMatch: 'full',
+    loadComponent: () => import('./features/landing/landing-page').then((m) => m.LandingPage),
+  },
+  {
     path: 'login',
     loadComponent: () => import('./features/auth/auth-page').then((m) => m.AuthPage),
     data: { mode: 'login' },
@@ -91,7 +96,6 @@ export const routes: Routes = [
             (m) => m.SubscriptionRequiredPage,
           ),
       },
-      { path: '', pathMatch: 'full', redirectTo: 'overview' },
     ],
   },
   { path: '**', redirectTo: '' },

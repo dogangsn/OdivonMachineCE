@@ -1,6 +1,7 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormField, form, minLength, required, submit } from '@angular/forms/signals';
+import { ActivatedRoute } from '@angular/router';
 import { AuthStore } from '../../core/auth/auth-store';
 import { PageHeader } from '../../shared/ui/page-header';
 import { SlideOver } from '../../shared/ui/slide-over';
@@ -313,6 +314,12 @@ export class BillingPage {
     required(p.city);
   });
   private readonly api = inject(BillingApi);
+  private readonly route = inject(ActivatedRoute);
+  private readonly fallbackPlans: SaasPlan[] = [
+    { id: 'starter', name: 'Başlangıç', monthly: 99, yearly: 1100 },
+    { id: 'pro', name: 'Profesyonel', monthly: 199, yearly: 2200 },
+    { id: 'enterprise', name: 'Kurumsal', monthly: 399, yearly: 3380 },
+  ];
   constructor() {
     void this.load();
   }
@@ -324,10 +331,19 @@ export class BillingPage {
         this.api.history(),
         this.api.entitlements(),
       ]);
-      this.plans.set(plans);
+      const resolvedPlans = plans?.length ? plans : this.fallbackPlans;
+      this.plans.set(resolvedPlans);
       this.status.set(status);
       this.history.set(history);
       this.entitlements.set(access);
+
+      const requestedPlanId = this.route.snapshot.queryParamMap.get('plan');
+      if (requestedPlanId && this.auth.session()?.role === 'owner') {
+        const match = resolvedPlans.find((item) => item.id === requestedPlanId);
+        if (match) {
+          this.selectPlan(match);
+        }
+      }
     } catch (e) {
       this.error.set(e instanceof Error ? e.message : 'Abonelik verileri alınamadı.');
     } finally {
