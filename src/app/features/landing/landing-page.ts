@@ -761,24 +761,24 @@ export class LandingPage {
     },
     {
       icon: 'verified',
-      title: 'AT Uygunluk Beyanı (DoC) & CE',
+      title: 'AT Uygunluk Beyanı (DoC) & PDF Motoru',
       description:
-        'Zorunlu onay alanları doğrulandığında AT Uygunluk Beyanını oluşturun ve denetime hazır JSON/rapor paketini indirin.',
+      'Zorunlu onay alanları doğrulandığında resmî 2006/42/EC ve AB 2023/1230 AT Uygunluk Beyanı PDF çıktısını ve denetim paketini tek tıkla üretin.',
       points: [
-        'Sorumlu mühendis ve onay tarihi doğrulaması',
-        'Tek tıkla denetim paketi dışa aktarımı',
-        'Değişmez snapshot (anlık görüntü) koruması',
+        'Tek tıkla resmî A4 AT Uygunluk Beyanı PDF',
+        'Teknik dosya şema/belge ekleri (PDF, DWG, Test)',
+        'Excel / CSV toplu envanter içe ve dışa aktarımı',
       ],
     },
     {
-      icon: 'admin_panel_settings',
-      title: 'Ekip, Rol (RBAC) ve Denetim İzi',
+      icon: 'auto_awesome',
+      title: 'AI CE Mühendislik & Denetim Asistanı',
       description:
-        'Mühendislerinize, kalite onaycılarınıza ve dış denetçilerinize görev bazlı granüler yetki tanımlayın.',
+      'Makine adını yazın; yapay zekâ C-tipi harmonize standartları, EN ISO 12100 tehlike analizini, PL seviyesini ve koruyucu tedbirleri otomatik üretsin.',
       points: [
-        'Hazır CE mühendislik rol şablonları',
-        'Değiştirilemez aktivite ve denetim günlüğü',
-        '8 dil ve Arapça RTL arayüz desteği',
+        'Tek tıkla AI EN ISO 12100 risk & standart sihirbazı',
+        'Fabrika portföyü AI denetim boşluk analizi',
+        'AB 2023/1230 geçiş ve mevzuat soru-cevap danışmanı',
       ],
     },
   ];
@@ -856,27 +856,27 @@ export class LandingPage {
   planFeatures(id: string): string[] {
     return id === 'starter'
       ? [
-          '100 CE / Makine kaydı kapasitesi',
-          '3 mühendis / kullanıcı hesabı',
-          'EN ISO 12100 risk skoru hesaplama',
-          'Standart matrisi ve teknik dosya',
-          'Temel denetim raporu çıktısı',
-        ]
+        '100 CE / Makine kaydı kapasitesi',
+        '3 mühendis / kullanıcı hesabı',
+        'EN ISO 12100 risk skoru hesaplama',
+        'Standart matrisi ve teknik dosya',
+        'Temel denetim raporu çıktısı',
+      ]
       : id === 'pro'
         ? [
-            '1.500 CE / Makine kaydı kapasitesi',
-            '15 mühendis / kullanıcı hesabı',
-            'Gelişmiş CE teknik dosya kanıt paketi',
-            'Rol tabanlı yetkilendirme (RBAC)',
-            'Değişmez denetim izi (Audit Trail)',
-          ]
+          '1.500 CE / Makine kaydı kapasitesi',
+          '15 mühendis / kullanıcı hesabı',
+          'Gelişmiş CE teknik dosya kanıt paketi',
+          'Rol tabanlı yetkilendirme (RBAC)',
+          'Değişmez denetim izi (Audit Trail)',
+        ]
         : [
-            'Sınırsız CE / Makine kaydı',
-            'Sınırsız mühendis & denetçi kullanıcısı',
-            'Tüm tesislerde çoklu dil (8 Dil + RTL)',
-            'Gelişmiş uyumluluk ve denetim paketi',
-            'Öncelikli kurumsal mühendislik desteği',
-          ];
+          'Sınırsız CE / Makine kaydı',
+          'Sınırsız mühendis & denetçi kullanıcısı',
+          'Tüm tesislerde çoklu dil (8 Dil + RTL)',
+          'Gelişmiş uyumluluk ve denetim paketi',
+          'Öncelikli kurumsal mühendislik desteği',
+        ];
   }
 
   toggleTheme(): void {

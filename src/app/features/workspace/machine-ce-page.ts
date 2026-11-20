@@ -5,13 +5,20 @@ import Swal from 'sweetalert2';
 import { PRODUCT_NAVIGATION } from '../../domain/domain-navigation';
 import { PageHeader } from '../../shared/ui/page-header';
 import { SlideOver } from '../../shared/ui/slide-over';
+import { MachineCeCsvService } from './machine-ce-csv.service';
+import { MachineCePdfService } from './machine-ce-pdf.service';
 import {
+  AiAnalyzeMachineOutput,
+  AiCopilotAskOutput,
+  AiPortfolioAuditOutput,
   MachineCeApi,
+  MachineCeAttachmentMeta,
   MachineCeDashboard,
   MachineCeKind,
   MachineCeRecord,
   MachineCeStatus,
   RecordDraft,
+  UploadAttachmentInput,
 } from './machine-ce.api';
 
 const KINDS: Record<string, MachineCeKind> = {
@@ -57,7 +64,39 @@ const emptyDraft = (kind: MachineCeKind): RecordDraft => ({
         [title]="title"
         [description]="description"
       >
-        <div actions class="flex flex-wrap items-center gap-2.5">
+        <div actions class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            class="odv-btn-soft !border-indigo-300/80 !bg-indigo-50/90 !text-indigo-700 dark:!border-indigo-700/80 dark:!bg-indigo-950/80 dark:!text-indigo-300"
+            title="AI CE Mühendislik Asistanı, Portföy Boşluk Analizi ve Mevzuat Danışmanı"
+            (click)="openAiDrawer()"
+          >
+            <span class="material-symbols-rounded">auto_awesome</span>AI CE Mühendisi
+          </button>
+          <button
+            type="button"
+            class="odv-btn-soft"
+            title="AT Uygunluk & Portföy Raporunu PDF olarak yazdır veya kaydet"
+            (click)="printPortfolioPdf()"
+          >
+            <span class="material-symbols-rounded">picture_as_pdf</span>Resmî CE Raporu (PDF)
+          </button>
+          <button
+            type="button"
+            class="odv-btn-soft"
+            title="Listeyi Excel uyumlu CSV olarak dışa aktar"
+            (click)="exportCsv()"
+          >
+            <span class="material-symbols-rounded">table_view</span>Excel / CSV İndir
+          </button>
+          <button
+            type="button"
+            class="odv-btn-soft"
+            title="Excel veya CSV dosyasından toplu makine ve risk kaydı aktar"
+            (click)="openImportDrawer()"
+          >
+            <span class="material-symbols-rounded">upload_file</span>Toplu İçe Aktar
+          </button>
           <button type="button" class="odv-btn-soft" (click)="downloadReport()">
             <span class="material-symbols-rounded">download</span>Teknik dosya paketi
           </button>
@@ -564,9 +603,20 @@ const emptyDraft = (kind: MachineCeKind): RecordDraft => ({
                       </span>
                     </td>
                     <td class="odv-td">
-                      <span class="odv-badge-info">
-                        {{ row.directive || row.standardRefs[0] || '2006/42/EC' }}
-                      </span>
+                      <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="odv-badge-info">
+                          {{ row.directive || row.standardRefs[0] || '2006/42/EC' }}
+                        </span>
+                        @if (row.attachments?.length) {
+                          <span
+                            class="inline-flex items-center gap-0.5 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                            title="Yüklenen teknik dosya ekleri"
+                          >
+                            <span class="material-symbols-rounded !text-xs">attach_file</span>
+                            {{ row.attachments?.length }}
+                          </span>
+                        }
+                      </div>
                     </td>
                     <td class="odv-td">
                       @if (rowRiskScore(row); as score) {
@@ -585,6 +635,15 @@ const emptyDraft = (kind: MachineCeKind): RecordDraft => ({
                     </td>
                     <td class="odv-td text-end" (click)="$event.stopPropagation()">
                       <div class="inline-flex items-center gap-1">
+                        <button
+                          type="button"
+                          class="odv-icon-btn"
+                          aria-label="AT Uygunluk Beyanı ve Teknik Dosya PDF çıktısı al"
+                          title="AT Uygunluk Beyanı & Teknik Dosya PDF"
+                          (click)="printRecordPdf(row)"
+                        >
+                          <span class="material-symbols-rounded !text-lg">picture_as_pdf</span>
+                        </button>
                         <button
                           type="button"
                           class="odv-icon-btn"
@@ -648,6 +707,63 @@ const emptyDraft = (kind: MachineCeKind): RecordDraft => ({
           <span>{{ saveError() }}</span>
         </div>
       }
+
+      <!-- AI Engineering Auto-Fill Banner -->
+      <section
+        class="rounded-2xl border border-indigo-200/80 bg-gradient-to-r from-indigo-50 via-violet-50 to-indigo-50 p-4 sm:p-5 dark:border-indigo-900/60 dark:from-indigo-950/60 dark:via-violet-950/50 dark:to-slate-900"
+      >
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-start gap-3">
+            <span
+              class="grid size-10 shrink-0 place-items-center rounded-xl bg-indigo-600 text-white shadow-sm"
+            >
+              <span class="material-symbols-rounded">auto_awesome</span>
+            </span>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="m-0 text-sm font-black text-slate-900 dark:text-white">
+                  AI EN ISO 12100 Risk & Standart Sihirbazı
+                </h3>
+                @if (lastAiAnalysis(); as aiRes) {
+                  <span class="odv-badge-info !text-[10px]">{{ aiRes.performanceLevel }}</span>
+                }
+              </div>
+              <p class="mb-0 mt-0.5 text-xs text-slate-600 dark:text-slate-300">
+                Makine adını yazıp butona tıklayın; C-tipi harmonize standartları, tehlike analizini,
+                Şiddet × Olasılık skorunu ve koruyucu tedbirleri AI otomatik doldursun.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="odv-btn-primary !py-2 !px-3.5 !text-xs"
+            [disabled]="aiAnalyzing()"
+            (click)="runAiAutoFill()"
+          >
+            <span class="material-symbols-rounded !text-base">{{
+              aiAnalyzing() ? 'progress_activity' : 'auto_awesome'
+            }}</span>
+            <span>{{
+              aiAnalyzing() ? 'AI Analiz Ediyor…' : 'AI ile Risk & Standart Üret'
+            }}</span>
+          </button>
+        </div>
+
+        @if (lastAiAnalysis(); as aiRes) {
+          <div
+            class="mt-3.5 rounded-xl border border-indigo-200/60 bg-white/80 p-3 text-xs dark:border-indigo-900/40 dark:bg-slate-900/70"
+          >
+            <div class="font-bold text-indigo-700 dark:text-indigo-300">
+              AI Önerilen Doğrulama Testleri ({{ aiRes.performanceLevel }}):
+            </div>
+            <ul class="mb-0 mt-1.5 space-y-1 ps-4 text-slate-600 dark:text-slate-300">
+              @for (test of aiRes.requiredTests; track test) {
+                <li>{{ test }}</li>
+              }
+            </ul>
+          </div>
+        }
+      </section>
 
       <!-- Section 1: Machine Identity -->
       <section class="odv-card p-5 sm:p-6">
@@ -948,25 +1064,476 @@ const emptyDraft = (kind: MachineCeKind): RecordDraft => ({
         </div>
       </section>
 
+      <!-- Section 5: Technical File Attachments (Schematics, Test Reports, Manuals) -->
+      <section class="odv-card p-5 sm:p-6">
+        <div
+          class="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3.5 dark:border-slate-800"
+        >
+          <div class="flex items-center gap-3">
+            <span
+              class="grid size-9 place-items-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-950/70 dark:text-violet-400"
+            >
+              <span class="material-symbols-rounded">attach_file</span>
+            </span>
+            <div>
+              <h3 class="m-0 text-sm font-black text-slate-900 dark:text-white">
+                Teknik dosya belge ve şema ekleri
+              </h3>
+              <p class="mb-0 mt-0.5 text-[11px] text-slate-500">
+                Elektrik/pnömatik devre şemaları, EN 60204-1 test raporları, kılavuz PDF ve sertifikalar
+              </p>
+            </div>
+          </div>
+          <span class="odv-badge-info !text-[10px]">
+            {{ (editing()?.attachments?.length ?? 0) + pendingAttachments().length }} Belge
+          </span>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+          <label>
+            <span class="field-label">Belge kategorisi</span>
+            <select
+              class="odv-input"
+              [value]="attachmentCategory()"
+              (change)="attachmentCategory.set($any($event.target).value)"
+            >
+              <option value="Elektrik / Pnömatik Şema">Elektrik / Pnömatik Devre Şeması</option>
+              <option value="EN 60204-1 Test Raporu">EN 60204-1 Test & Ölçüm Raporu</option>
+              <option value="Kullanım & Bakım Kılavuzu">Kullanım & Bakım Kılavuzu (PDF)</option>
+              <option value="AT Uygunluk Beyanı">AT Uygunluk Beyanı (İmzalı)</option>
+              <option value="Saha & Muhafaza Fotoğrafı">Saha & Muhafaza Fotoğrafı</option>
+            </select>
+          </label>
+          <label class="odv-btn-soft cursor-pointer justify-center">
+            <span class="material-symbols-rounded">upload_file</span>
+            <span>{{ uploadingAttachment() ? 'Yükleniyor…' : 'Belge / Şema Seç' }}</span>
+            <input
+              type="file"
+              class="sr-only"
+              accept=".pdf,.png,.jpg,.jpeg,.svg,.dwg,.dxf,.doc,.docx,.xls,.xlsx,.txt,.csv"
+              [disabled]="uploadingAttachment()"
+              (change)="onAttachmentSelected($event)"
+            />
+          </label>
+        </div>
+        <p class="mb-0 mt-2 text-[11px] text-slate-400">
+          PDF, PNG, JPG, SVG, DWG/DXF, Word/Excel belgeleri desteklenir (maks. 850 KB / dosya). Yüklenen her belge otomatik kanıt kodu alır.
+        </p>
+
+        @if ((editing()?.attachments?.length ?? 0) > 0 || pendingAttachments().length > 0) {
+          <ul class="mt-4 space-y-2 p-0 list-none">
+            @for (att of editing()?.attachments ?? []; track att.id) {
+              <li
+                class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200/80 bg-slate-50/70 px-3.5 py-2.5 text-xs dark:border-slate-800 dark:bg-slate-800/50"
+              >
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <strong class="truncate font-bold text-slate-900 dark:text-white">{{
+                      att.name
+                    }}</strong>
+                    <span class="odv-badge-info !text-[10px]">{{ att.category }}</span>
+                    <span class="font-mono text-[11px] text-indigo-600 dark:text-indigo-400">{{
+                      att.refCode
+                    }}</span>
+                  </div>
+                  <span class="text-[11px] text-slate-400">
+                    {{ formatSize(att.size) }} · {{ att.uploadedAt | date: 'dd.MM.yyyy HH:mm' }}
+                  </span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <button
+                    type="button"
+                    class="odv-icon-btn"
+                    title="İndir / Görüntüle"
+                    aria-label="Belgeyi indir"
+                    (click)="downloadAttachment(att)"
+                  >
+                    <span class="material-symbols-rounded !text-base">download</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="odv-icon-btn !text-rose-600"
+                    title="Belgeyi kaldır"
+                    aria-label="Belgeyi kaldır"
+                    (click)="removeAttachment(att)"
+                  >
+                    <span class="material-symbols-rounded !text-base">delete</span>
+                  </button>
+                </div>
+              </li>
+            }
+            @for (pending of pendingAttachments(); track pending.refCode; let idx = $index) {
+              <li
+                class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-indigo-200/80 bg-indigo-50/50 px-3.5 py-2.5 text-xs dark:border-indigo-900/50 dark:bg-indigo-950/30"
+              >
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <strong class="truncate font-bold text-slate-900 dark:text-white">{{
+                      pending.name
+                    }}</strong>
+                    <span class="odv-badge-warning !text-[10px]">Kaydetme ile yüklenecek</span>
+                    <span class="font-mono text-[11px] text-indigo-600 dark:text-indigo-400">{{
+                      pending.refCode
+                    }}</span>
+                  </div>
+                  <span class="text-[11px] text-slate-400">
+                    {{ pending.category }} · {{ formatSize(pending.size) }}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  class="odv-icon-btn !text-rose-600"
+                  title="Bekleyen belgeyi çıkar"
+                  aria-label="Bekleyen belgeyi çıkar"
+                  (click)="removePendingAttachment(idx)"
+                >
+                  <span class="material-symbols-rounded !text-base">close</span>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
       @if (editing(); as row) {
         <div
           class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 dark:border-slate-800 dark:bg-slate-900"
         >
-          <button
-            type="button"
-            class="odv-btn-ghost !text-rose-600 dark:!text-rose-400"
-            (click)="toggleArchive(row)"
-          >
-            <span class="material-symbols-rounded">{{
-              row.archivedAt ? 'restore_from_trash' : 'archive'
-            }}</span>
-            {{ row.archivedAt ? 'Arşivden çıkar' : 'Arşivle' }}
-          </button>
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              class="odv-btn-soft"
+              (click)="printRecordPdf(row)"
+            >
+              <span class="material-symbols-rounded">picture_as_pdf</span>
+              AT Uygunluk Beyanı & PDF
+            </button>
+            <button
+              type="button"
+              class="odv-btn-ghost !text-rose-600 dark:!text-rose-400"
+              (click)="toggleArchive(row)"
+            >
+              <span class="material-symbols-rounded">{{
+                row.archivedAt ? 'restore_from_trash' : 'archive'
+              }}</span>
+              {{ row.archivedAt ? 'Arşivden çıkar' : 'Arşivle' }}
+            </button>
+          </div>
           <span class="text-xs font-semibold text-slate-500">
             Sürüm {{ row.version }} · değişiklikler audit kaydına işlenir
           </span>
         </div>
       }
+    </app-slide-over>
+
+    <!-- Bulk CSV / Excel Import Slide-Over Drawer -->
+    <app-slide-over
+      [open]="importDrawerOpen()"
+      [wide]="true"
+      [dirty]="importPreview().length > 0"
+      [submitting]="importing()"
+      title="CSV / Excel Toplu Veri Aktarımı"
+      description="Fabrika makine parkurunu, EN ISO 12100 risk değerlendirmelerini ve standart matrisini Excel/CSV şablonundan tek seferde içe aktarın."
+      eyebrow="TOPLU ENVANTER & RİSK AKTARIMI"
+      icon="upload_file"
+      [submitLabel]="'Toplu Aktarımı Başlat (' + importPreview().length + ' Kayıt)'"
+      (closed)="importDrawerOpen.set(false)"
+      (submitted)="runBulkImport()"
+    >
+      @if (importError()) {
+        <div
+          role="alert"
+          class="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs sm:text-sm font-bold text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/60 dark:text-rose-300"
+        >
+          <span class="material-symbols-rounded">error</span>
+          <span>{{ importError() }}</span>
+        </div>
+      }
+
+      <section class="odv-card p-5 sm:p-6 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="m-0 text-sm font-black text-slate-900 dark:text-white">
+              1. Hazır Excel / CSV Şablonu
+            </h3>
+            <p class="mb-0 mt-0.5 text-xs text-slate-500">
+              Örnek makine ve EN ISO 12100 risk satırlarını içeren Türkçe sütunlu şablonu indirip Excel’de doldurun.
+            </p>
+          </div>
+          <button type="button" class="odv-btn-soft" (click)="downloadCsvTemplate()">
+            <span class="material-symbols-rounded">download</span>Örnek CSV Şablonu İndir
+          </button>
+        </div>
+
+        <div class="border-t border-slate-100 pt-4 dark:border-slate-800">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <div>
+              <h3 class="m-0 text-sm font-black text-slate-900 dark:text-white">
+                2. CSV Dosyası Seçin veya İçeriği Yapıştırın
+              </h3>
+              <p class="mb-0 mt-0.5 text-xs text-slate-500">
+                Noktalı virgül (;) veya virgül (,) ayracı otomatik algılanır.
+              </p>
+            </div>
+            <label class="odv-btn-primary cursor-pointer">
+              <span class="material-symbols-rounded">folder_open</span>
+              <span>CSV Dosyası Seç (.csv)</span>
+              <input
+                type="file"
+                class="sr-only"
+                accept=".csv,.txt"
+                (change)="onCsvFileSelected($event)"
+              />
+            </label>
+          </div>
+
+          <textarea
+            class="odv-input font-mono text-xs min-h-32"
+            placeholder="Kayıt Türü;Makine / Kayıt Adı;Tesis / Konum;Üretici;Model;Seri Numarası..."
+            [value]="importCsvText()"
+            (input)="onCsvTextInput($any($event.target).value)"
+          ></textarea>
+        </div>
+      </section>
+
+      <section class="odv-card overflow-hidden">
+        <div class="flex items-center justify-between border-b border-slate-200/80 px-5 py-3.5 dark:border-slate-800">
+          <h3 class="m-0 text-sm font-black text-slate-900 dark:text-white">
+            3. Aktarılacak Kayıt Önizlemesi
+          </h3>
+          <span class="odv-badge-info">{{ importPreview().length }} Satır Hazır</span>
+        </div>
+        @if (importPreview().length > 0) {
+          <div class="overflow-x-auto custom-scroll max-h-72">
+            <table class="w-full min-w-[640px] border-collapse">
+              <thead>
+                <tr>
+                  <th class="odv-th">#</th>
+                  <th class="odv-th">Tür</th>
+                  <th class="odv-th">Makine / Kayıt Adı</th>
+                  <th class="odv-th">Konum</th>
+                  <th class="odv-th">Direktif</th>
+                  <th class="odv-th">Risk (S×P)</th>
+                  <th class="odv-th">Durum</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of importPreview(); track $index; let idx = $index) {
+                  <tr>
+                    <td class="odv-td font-mono text-xs">{{ idx + 1 }}</td>
+                    <td class="odv-td text-xs font-semibold">{{ kindLabel(item.kind) }}</td>
+                    <td class="odv-td font-bold text-slate-900 dark:text-white">{{ item.name }}</td>
+                    <td class="odv-td text-xs">{{ item.location }}</td>
+                    <td class="odv-td text-xs">{{ item.directive }}</td>
+                    <td class="odv-td text-xs">
+                      @if (item.severity && item.probability) {
+                        <span [class]="riskBadgeClass(item.severity * item.probability)">
+                          {{ item.severity * item.probability }} ({{ item.severity }}×{{ item.probability }})
+                        </span>
+                      } @else {
+                        <span>—</span>
+                      }
+                    </td>
+                    <td class="odv-td text-xs">{{ statusLabel(item.status) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="p-8 text-center text-xs text-slate-500">
+            Henüz CSV dosyası seçilmedi veya geçerli satır algılanmadı. Örnek şablonu indirip yükleyebilirsiniz.
+          </div>
+        }
+      </section>
+    </app-slide-over>
+
+    <!-- AI CE Engineering & Audit Copilot Slide-Over Drawer -->
+    <app-slide-over
+      [open]="aiDrawerOpen()"
+      [wide]="true"
+      [dirty]="false"
+      [submitting]="aiAsking()"
+      title="AI CE Mühendislik & Denetim Asistanı"
+      description="2006/42/EC, AB 2023/1230 ve EN ISO 12100 kapsamında yapay zekâ destekli portföy boşluk analizi ve mevzuat danışmanı."
+      eyebrow="ODIVON AI MÜHENDİSLİK MOTORU"
+      icon="auto_awesome"
+      submitLabel="AI Mühendise Sor"
+      (closed)="aiDrawerOpen.set(false)"
+      (submitted)="runAiAsk()"
+    >
+      @if (aiError()) {
+        <div
+          role="alert"
+          class="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs sm:text-sm font-bold text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/60 dark:text-rose-300"
+        >
+          <span class="material-symbols-rounded">error</span>
+          <span>{{ aiError() }}</span>
+        </div>
+      }
+
+      <!-- 1. AI Portfolio Gap & EU 2023/1230 Audit -->
+      <section class="odv-card p-5 sm:p-6 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <span
+              class="grid size-10 place-items-center rounded-xl bg-indigo-600 text-white shadow-sm"
+            >
+              <span class="material-symbols-rounded">troubleshoot</span>
+            </span>
+            <div>
+              <h3 class="m-0 text-sm font-black text-slate-900 dark:text-white">
+                1. Fabrika Portföyü AI Denetim & Boşluk Analizi
+              </h3>
+              <p class="mb-0 mt-0.5 text-xs text-slate-500">
+                Mevcut makine, risk ve teknik dosya kayıtlarınızdaki eksikleri ve AB 2023/1230 geçiş ihtiyaçlarını tarar.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="odv-btn-soft !text-xs"
+            [disabled]="aiAuditing()"
+            (click)="runAiPortfolioAudit()"
+          >
+            <span class="material-symbols-rounded !text-base">{{
+              aiAuditing() ? 'progress_activity' : 'refresh'
+            }}</span>
+            <span>{{ aiAuditing() ? 'Taranıyor…' : 'Portföyü Yeniden Denetle' }}</span>
+          </button>
+        </div>
+
+        @if (aiAuditResult(); as audit) {
+          <div class="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-800/50 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <strong class="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                {{ audit.headline }}
+              </strong>
+              <span class="odv-badge-success">AI Hazırlık Skoru: %{{ audit.readinessScore }}</span>
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-2 text-xs">
+              <div class="rounded-xl border border-amber-200/70 bg-amber-50/60 p-3 dark:border-amber-900/50 dark:bg-amber-950/30">
+                <strong class="block font-extrabold text-amber-800 dark:text-amber-300 mb-1.5">
+                  Tespit Edilen Denetim Boşlukları
+                </strong>
+                <ul class="m-0 ps-4 space-y-1 text-slate-700 dark:text-slate-300">
+                  @for (gap of audit.gaps; track gap) {
+                    <li>{{ gap }}</li>
+                  }
+                </ul>
+              </div>
+              <div class="rounded-xl border border-emerald-200/70 bg-emerald-50/60 p-3 dark:border-emerald-900/50 dark:bg-emerald-950/30">
+                <strong class="block font-extrabold text-emerald-800 dark:text-emerald-300 mb-1.5">
+                  Önerilen Düzeltici Faaliyetler (CAPA)
+                </strong>
+                <ul class="m-0 ps-4 space-y-1 text-slate-700 dark:text-slate-300">
+                  @for (rec of audit.recommendations; track rec) {
+                    <li>{{ rec }}</li>
+                  }
+                </ul>
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-indigo-200/70 bg-indigo-50/60 p-3 text-xs dark:border-indigo-900/50 dark:bg-indigo-950/30">
+              <strong class="block font-extrabold text-indigo-800 dark:text-indigo-300 mb-1.5">
+                AB 2023/1230 Yeni Makine Tüzüğü Geçiş Notları
+              </strong>
+              <ul class="m-0 ps-4 space-y-1 text-slate-700 dark:text-slate-300">
+                @for (note of audit.regulation2023Notes; track note) {
+                  <li>{{ note }}</li>
+                }
+              </ul>
+            </div>
+          </div>
+        }
+      </section>
+
+      <!-- 2. Interactive AI Standards & Risk Consultant -->
+      <section class="odv-card p-5 sm:p-6 space-y-4">
+        <div class="flex items-center gap-3">
+          <span
+            class="grid size-10 place-items-center rounded-xl bg-violet-600 text-white shadow-sm"
+          >
+            <span class="material-symbols-rounded">psychology</span>
+          </span>
+          <div>
+            <h3 class="m-0 text-sm font-black text-slate-900 dark:text-white">
+              2. AI Mevzuat, Standart ve Risk Danışmanı
+            </h3>
+            <p class="mb-0 mt-0.5 text-xs text-slate-500">
+              Makine tipi, harmonize standart, PL seviyesi veya emniyet mesafesi sorunuzu yazın; AI mühendislik yanıtı ve hazır kayıt taslağı üretsin.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-1.5">
+          @for (preset of aiQuickPrompts; track preset) {
+            <button
+              type="button"
+              class="rounded-xl border border-slate-200/80 bg-slate-50 px-3 py-1.5 text-start text-[11px] font-bold text-slate-700 transition hover:border-indigo-400 hover:bg-indigo-50/60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+              (click)="selectAiPreset(preset)"
+            >
+              {{ preset }}
+            </button>
+          }
+        </div>
+
+        <label class="block">
+          <span class="field-label">Mühendislik sorunuz veya makine senaryosu</span>
+          <textarea
+            class="odv-input min-h-24 text-xs sm:text-sm"
+            placeholder="Örn. CNC hidrolik abkant pres için hangi C-tipi standartlar, PL seviyesi ve ışık perdesi testleri zorunludur?"
+            [value]="aiQuestion()"
+            (input)="aiQuestion.set($any($event.target).value)"
+          ></textarea>
+        </label>
+
+        @if (aiAskResult(); as ans) {
+          <div class="rounded-2xl border border-indigo-200/80 bg-indigo-50/40 p-4 sm:p-5 space-y-3.5 dark:border-indigo-900/60 dark:bg-indigo-950/30">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h4 class="m-0 text-sm font-black text-slate-900 dark:text-white">
+                {{ ans.title }}
+              </h4>
+              <span class="odv-badge-info !text-[10px]">
+                {{ ans.provider === 'gemini' ? 'Google Gemini AI' : 'Odivon CE Uzman Motoru' }}
+              </span>
+            </div>
+            <p class="m-0 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+              {{ ans.answer }}
+            </p>
+
+            <div>
+              <span class="field-label">Referans Harmonize Standartlar</span>
+              <div class="flex flex-wrap gap-1.5">
+                @for (std of ans.referencedStandards; track std) {
+                  <span class="odv-badge-info font-mono !text-[11px]">{{ std }}</span>
+                }
+              </div>
+            </div>
+
+            <div>
+              <span class="field-label">Doğrulama Kontrol Listesi</span>
+              <ul class="m-0 ps-4 space-y-1 text-xs text-slate-700 dark:text-slate-300">
+                @for (item of ans.checklist; track item) {
+                  <li>{{ item }}</li>
+                }
+              </ul>
+            </div>
+
+            <div class="pt-2 border-t border-indigo-200/60 dark:border-indigo-900/50 flex justify-end">
+              <button
+                type="button"
+                class="odv-btn-primary !py-2 !px-4 !text-xs"
+                (click)="createFromAiSuggestion(ans)"
+              >
+                <span class="material-symbols-rounded !text-base">add_task</span>
+                Bu Analizden Yeni CE Kaydı Oluştur
+              </button>
+            </div>
+          </div>
+        }
+      </section>
     </app-slide-over>
   `,
   styles: `
@@ -987,6 +1554,8 @@ const emptyDraft = (kind: MachineCeKind): RecordDraft => ({
 export class MachineCePage {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(MachineCeApi);
+  private readonly pdf = inject(MachineCePdfService);
+  private readonly csv = inject(MachineCeCsvService);
   readonly overview = this.route.snapshot.data['view'] === 'overview';
   private readonly section = String(this.route.snapshot.data['section'] ?? '');
   readonly kind = this.overview ? null : (KINDS[this.section] ?? 'machine');
@@ -1011,6 +1580,39 @@ export class MachineCePage {
   readonly editing = signal<MachineCeRecord | null>(null);
   readonly draft = signal<RecordDraft>(emptyDraft(this.kind ?? 'machine'));
   readonly dirty = signal(false);
+
+  // Attachment state
+  readonly attachmentCategory = signal('Elektrik / Pnömatik Şema');
+  readonly uploadingAttachment = signal(false);
+  readonly pendingAttachments = signal<(UploadAttachmentInput & { refCode: string })[]>([]);
+
+  // Bulk CSV Import state
+  readonly importDrawerOpen = signal(false);
+  readonly importing = signal(false);
+  readonly importError = signal('');
+  readonly importCsvText = signal('');
+  readonly importPreview = signal<RecordDraft[]>([]);
+
+  // AI Engineering Copilot state
+  readonly aiDrawerOpen = signal(false);
+  readonly aiAnalyzing = signal(false);
+  readonly lastAiAnalysis = signal<AiAnalyzeMachineOutput | null>(null);
+  readonly aiAuditing = signal(false);
+  readonly aiAuditResult = signal<AiPortfolioAuditOutput | null>(null);
+  readonly aiAsking = signal(false);
+  readonly aiQuestion = signal(
+    'CNC hidrolik abkant pres için hangi C-tipi standartlar, PL seviyesi ve doğrulama testleri gerekir?',
+  );
+  readonly aiAskResult = signal<AiCopilotAskOutput | null>(null);
+  readonly aiError = signal('');
+  readonly aiQuickPrompts = [
+    'CNC hidrolik abkant pres için hangi C-tipi standartlar ve PL seviyesi gerekir?',
+    '2006/42/EC ile yeni AB 2023/1230 Makine Tüzüğü arasındaki farklar nelerdir?',
+    'EN 60204-1 kapsamında zorunlu elektriksel güvenlik testleri hangileridir?',
+    'Işık perdesi emniyet mesafesi (EN ISO 13855) nasıl hesaplanır?',
+    'Robotik kaynak hücresinde emniyet kapısı ve alan tarayıcı nasıl kurgulanır?',
+  ] as const;
+
   private timer?: ReturnType<typeof setTimeout>;
 
   readonly filteredRecords = computed(() => {
@@ -1095,6 +1697,8 @@ export class MachineCePage {
   openCreate() {
     this.editing.set(null);
     this.draft.set(emptyDraft(this.kind ?? 'machine'));
+    this.pendingAttachments.set([]);
+    this.lastAiAnalysis.set(null);
     this.dirty.set(false);
     this.saveError.set('');
     this.drawerOpen.set(true);
@@ -1102,6 +1706,8 @@ export class MachineCePage {
 
   openEdit(row: MachineCeRecord) {
     this.editing.set(row);
+    this.pendingAttachments.set([]);
+    this.lastAiAnalysis.set(null);
     this.draft.set({
       kind: row.kind,
       name: row.name,
@@ -1156,8 +1762,17 @@ export class MachineCePage {
     this.saveError.set('');
     try {
       const row = this.editing();
-      if (row) await this.api.update(row.id, row.version, draft);
-      else await this.api.create(draft);
+      let savedRecord: MachineCeRecord;
+      if (row) {
+        savedRecord = await this.api.update(row.id, row.version, draft);
+      } else {
+        savedRecord = await this.api.create(draft);
+      }
+      // Upload any pending attachments queued before saving
+      for (const att of this.pendingAttachments()) {
+        savedRecord = await this.api.uploadAttachment(savedRecord.id, att);
+      }
+      this.pendingAttachments.set([]);
       this.dirty.set(false);
       this.drawerOpen.set(false);
       await this.load();
@@ -1166,6 +1781,281 @@ export class MachineCePage {
     } finally {
       this.saving.set(false);
     }
+  }
+
+  async onAttachmentSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    if (file.size > 850_000) {
+      this.saveError.set('Belge boyutu en fazla 850 KB olabilir.');
+      return;
+    }
+    this.uploadingAttachment.set(true);
+    this.saveError.set('');
+    try {
+      const dataUrl = await this.readFileAsDataUrl(file);
+      const refCode = `DOC-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+      const payload: UploadAttachmentInput & { refCode: string } = {
+        name: file.name,
+        category: this.attachmentCategory(),
+        mimeType: file.type || 'application/octet-stream',
+        size: file.size,
+        dataUrl,
+        refCode,
+      };
+      const current = this.editing();
+      if (current) {
+        const updated = await this.api.uploadAttachment(current.id, payload);
+        this.editing.set(updated);
+        this.patch('documentRefsText', updated.documentRefs.join(', '));
+        await this.load();
+      } else {
+        this.pendingAttachments.update((list) => [...list, payload]);
+        const currentRefs = this.draft()
+          .documentRefsText.split(',')
+          .map((item) => item.trim())
+          .filter(Boolean);
+        if (!currentRefs.includes(refCode)) {
+          this.patch('documentRefsText', [...currentRefs, refCode].join(', '));
+        }
+      }
+    } catch (error) {
+      this.saveError.set(error instanceof Error ? error.message : 'Belge yüklenemedi.');
+    } finally {
+      this.uploadingAttachment.set(false);
+    }
+  }
+
+  async downloadAttachment(att: MachineCeAttachmentMeta) {
+    const current = this.editing();
+    if (!current) return;
+    try {
+      const full = await this.api.getAttachment(current.id, att.id);
+      const link = document.createElement('a');
+      link.href = full.dataUrl;
+      link.download = full.name;
+      link.click();
+    } catch (error) {
+      this.saveError.set(error instanceof Error ? error.message : 'Belge indirilemedi.');
+    }
+  }
+
+  async removeAttachment(att: MachineCeAttachmentMeta) {
+    const current = this.editing();
+    if (!current) return;
+    try {
+      const updated = await this.api.deleteAttachment(current.id, att.id);
+      this.editing.set(updated);
+      this.patch('documentRefsText', updated.documentRefs.join(', '));
+      await this.load();
+    } catch (error) {
+      this.saveError.set(error instanceof Error ? error.message : 'Belge silinemedi.');
+    }
+  }
+
+  removePendingAttachment(index: number) {
+    const target = this.pendingAttachments()[index];
+    this.pendingAttachments.update((list) => list.filter((_, idx) => idx !== index));
+    if (target) {
+      const nextRefs = this.draft()
+        .documentRefsText.split(',')
+        .map((item) => item.trim())
+        .filter((item) => Boolean(item) && item !== target.refCode);
+      this.patch('documentRefsText', nextRefs.join(', '));
+    }
+  }
+
+  formatSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  }
+
+  printRecordPdf(row: MachineCeRecord) {
+    this.pdf.printRecordDoC(row);
+  }
+
+  printPortfolioPdf() {
+    this.pdf.printPortfolioReport(this.filteredRecords(), this.dashboard(), this.title);
+  }
+
+  exportCsv() {
+    this.csv.exportRecords(this.filteredRecords(), `machinece-${this.section || 'portfoy'}`);
+  }
+
+  openImportDrawer() {
+    this.importError.set('');
+    this.importCsvText.set('');
+    this.importPreview.set([]);
+    this.importDrawerOpen.set(true);
+  }
+
+  downloadCsvTemplate() {
+    this.csv.downloadTemplate();
+  }
+
+  async onCsvFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    try {
+      const text = await file.text();
+      this.onCsvTextInput(text);
+    } catch {
+      this.importError.set('CSV dosyası okunamadı.');
+    }
+  }
+
+  onCsvTextInput(text: string) {
+    this.importCsvText.set(text);
+    this.importError.set('');
+    const parsed = this.csv.parseCsv(text, this.kind ?? 'machine');
+    this.importPreview.set(parsed);
+  }
+
+  async runBulkImport() {
+    const items = this.importPreview();
+    if (!items.length) {
+      this.importError.set('İçe aktarılacak geçerli bir CSV satırı bulunamadı.');
+      return;
+    }
+    this.importing.set(true);
+    this.importError.set('');
+    try {
+      await this.api.bulkCreate(items);
+      this.importDrawerOpen.set(false);
+      this.importCsvText.set('');
+      this.importPreview.set([]);
+      await this.load();
+    } catch (error) {
+      this.importError.set(
+        error instanceof Error ? error.message : 'Toplu veri aktarımı tamamlanamadı.',
+      );
+    } finally {
+      this.importing.set(false);
+    }
+  }
+
+  async runAiAutoFill() {
+    const currentDraft = this.draft();
+    const machineName = currentDraft.name.trim() || currentDraft.machineType.trim();
+    if (!machineName) {
+      this.saveError.set(
+        'AI analizi için lütfen önce "Makine / kayıt adı" veya "Makine tipi" alanını yazın (örn. CNC Hidrolik Abkant Pres).',
+      );
+      return;
+    }
+    this.aiAnalyzing.set(true);
+    this.saveError.set('');
+    try {
+      const res = await this.api.aiAnalyzeMachine({
+        name: machineName,
+        machineType: currentDraft.machineType || undefined,
+        location: currentDraft.location || undefined,
+        hazardHint: currentDraft.hazard || undefined,
+      });
+      this.lastAiAnalysis.set(res);
+      this.draft.update((d) => ({
+        ...d,
+        name: d.name.trim() || machineName,
+        location: d.location.trim() || 'Ana Üretim Tesisi',
+        machineType: res.machineType,
+        directive: res.directive,
+        standardRefsText: res.standardRefs.join(', '),
+        hazard: res.hazard,
+        severity: res.severity,
+        probability: res.probability,
+        protectiveMeasures: res.protectiveMeasures,
+        residualRisk: res.residualRisk,
+        notes: d.notes.trim() ? `${d.notes}\n\n${res.notes}` : res.notes,
+      }));
+      this.dirty.set(true);
+    } catch (error) {
+      this.saveError.set(error instanceof Error ? error.message : 'AI analizi tamamlanamadı.');
+    } finally {
+      this.aiAnalyzing.set(false);
+    }
+  }
+
+  openAiDrawer() {
+    this.aiError.set('');
+    this.aiDrawerOpen.set(true);
+    if (!this.aiAuditResult()) {
+      void this.runAiPortfolioAudit();
+    }
+  }
+
+  async runAiPortfolioAudit() {
+    this.aiAuditing.set(true);
+    this.aiError.set('');
+    try {
+      const audit = await this.api.aiAuditPortfolio();
+      this.aiAuditResult.set(audit);
+    } catch (error) {
+      this.aiError.set(error instanceof Error ? error.message : 'AI portföy denetimi alınamadı.');
+    } finally {
+      this.aiAuditing.set(false);
+    }
+  }
+
+  selectAiPreset(preset: string) {
+    this.aiQuestion.set(preset);
+    void this.runAiAsk();
+  }
+
+  async runAiAsk() {
+    const q = this.aiQuestion().trim();
+    if (!q) {
+      this.aiError.set('Lütfen bir mühendislik sorusu veya makine senaryosu yazın.');
+      return;
+    }
+    this.aiAsking.set(true);
+    this.aiError.set('');
+    try {
+      const ans = await this.api.aiAskCopilot(q);
+      this.aiAskResult.set(ans);
+    } catch (error) {
+      this.aiError.set(error instanceof Error ? error.message : 'AI danışman yanıtı alınamadı.');
+    } finally {
+      this.aiAsking.set(false);
+    }
+  }
+
+  createFromAiSuggestion(ans: AiCopilotAskOutput) {
+    const s = ans.suggestedDraft;
+    this.aiDrawerOpen.set(false);
+    this.editing.set(null);
+    this.pendingAttachments.set([]);
+    this.lastAiAnalysis.set(null);
+    this.draft.set({
+      ...emptyDraft(this.kind ?? 'risk-assessment'),
+      name: s.name,
+      location: 'Ana Üretim Tesisi',
+      machineType: s.machineType,
+      directive: s.directive,
+      standardRefsText: s.standardRefs.join(', '),
+      hazard: s.hazard,
+      severity: s.severity,
+      probability: s.probability,
+      protectiveMeasures: s.protectiveMeasures,
+      residualRisk: s.residualRisk,
+      notes: `AI Danışman Özeti: ${ans.title}\n• Kontrol Listesi: ${ans.checklist.join(' | ')}`,
+      status: 'in-review',
+    });
+    this.dirty.set(true);
+    this.saveError.set('');
+    this.drawerOpen.set(true);
+  }
+
+  private readFileAsDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result ?? ''));
+      reader.onerror = () => reject(new Error('Dosya okunamadı.'));
+      reader.readAsDataURL(file);
+    });
   }
 
   async toggleArchive(row: MachineCeRecord) {

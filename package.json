@@ -1,6 +1,6 @@
 {
   "name": "odivon-machine-ce",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "scripts": {
     "ng": "ng",
     "prestart": "node scripts/write-version.mjs",

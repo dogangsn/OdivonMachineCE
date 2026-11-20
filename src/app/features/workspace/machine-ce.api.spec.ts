@@ -111,5 +111,44 @@ describe('MachineCeApi & MachineCePage', () => {
     component.patchNumber('probability', '3');
     expect(component.draftRiskScore()).toBe(12);
     expect(component.riskLevelLabel(12)).toBe('Orta');
+
+    // CSV bulk import parsing & API call
+    component.openImportDrawer();
+    component.onCsvTextInput(
+      'Kayıt Türü;Makine / Kayıt Adı;Tesis / Konum;Üretici;Model;Seri Numarası;Makine Tipi;İmalat Yılı;Direktif;Harmonize Standartlar;Tehlike;Şiddet;Olasılık\n' +
+        'machine;Lazer Kesim Hücresi #1;Gebze OSB;Odivon;LZ-500;SN-9901;Fiber Lazer;2026;2006/42/EC;EN ISO 12100, EN 60825-1;Lazer ışını;4;2',
+    );
+    expect(component.importPreview()).toHaveLength(1);
+    expect(component.importPreview()[0].name).toBe('Lazer Kesim Hücresi #1');
+    expect(component.importPreview()[0].severity).toBe(4);
+    expect(component.importPreview()[0].probability).toBe(2);
+
+    // AI EN ISO 12100 Auto-Fill
+    component.openCreate();
+    component.patch('name', 'CNC Hidrolik Abkant Pres #3');
+    const aiPromise = component.runAiAutoFill();
+    const aiReq = http.expectOne(`${environment.apiBaseUrl}/machine-ce/ai/analyze-machine`);
+    expect(aiReq.request.body.name).toBe('CNC Hidrolik Abkant Pres #3');
+    aiReq.flush({
+      data: {
+        provider: 'expert-engine',
+        machineType: 'Hidrolik Pres',
+        directive: '2006/42/EC, AB 2023/1230',
+        standardRefs: ['EN ISO 12100:2010', 'EN 12622:2009+A1:2013', 'EN 60204-1:2018'],
+        hazard: 'Üst kalıp inişinde ezilme tehlikesi',
+        severity: 5,
+        probability: 2,
+        riskScore: 10,
+        performanceLevel: 'PL e (Kategori 4)',
+        protectiveMeasures: 'Tip 4 lazer ışık perdesi',
+        residualRisk: 'LOTO ve koruyucu eldiven',
+        requiredTests: ['EN ISO 13855 duruş süresi testi'],
+        notes: 'AI analizi tamamlandı.',
+      },
+    });
+    await aiPromise;
+    expect(component.draft().standardRefsText).toContain('EN 12622');
+    expect(component.draftRiskScore()).toBe(10);
+    expect(component.lastAiAnalysis()?.performanceLevel).toBe('PL e (Kategori 4)');
   });
 });

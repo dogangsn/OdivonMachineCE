@@ -10,6 +10,33 @@ interface Envelope<T> {
 export type MachineCeKind =
   'machine' | 'risk-assessment' | 'standard' | 'technical-file' | 'declaration';
 export type MachineCeStatus = 'draft' | 'in-review' | 'action-required' | 'approved' | 'rejected';
+
+export interface MachineCeAttachmentMeta {
+  readonly id: string;
+  readonly name: string;
+  readonly category: string;
+  readonly mimeType: string;
+  readonly size: number;
+  readonly refCode: string;
+  readonly uploadedAt: string;
+  readonly uploadedBy: string;
+}
+
+export interface MachineCeAttachment extends MachineCeAttachmentMeta {
+  readonly recordId: string;
+  readonly tenantId: string;
+  readonly dataUrl: string;
+}
+
+export interface UploadAttachmentInput {
+  readonly name: string;
+  readonly category: string;
+  readonly mimeType: string;
+  readonly size: number;
+  readonly dataUrl: string;
+  readonly refCode?: string;
+}
+
 export interface MachineCeRecord {
   readonly id: string;
   readonly kind: MachineCeKind;
@@ -33,6 +60,7 @@ export interface MachineCeRecord {
   readonly approvedAt: string | null;
   readonly notes: string | null;
   readonly documentRefs: string[];
+  readonly attachments?: MachineCeAttachmentMeta[];
   readonly status: MachineCeStatus;
   readonly version: number;
   readonly updatedAt: string;
@@ -74,6 +102,57 @@ export interface RecordDraft {
   status: MachineCeStatus;
 }
 
+export interface AiAnalyzeMachineInput {
+  readonly name: string;
+  readonly machineType?: string;
+  readonly location?: string;
+  readonly hazardHint?: string;
+}
+
+export interface AiAnalyzeMachineOutput {
+  readonly provider: 'gemini' | 'expert-engine';
+  readonly machineType: string;
+  readonly directive: string;
+  readonly standardRefs: string[];
+  readonly hazard: string;
+  readonly severity: number;
+  readonly probability: number;
+  readonly riskScore: number;
+  readonly performanceLevel: string;
+  readonly protectiveMeasures: string;
+  readonly residualRisk: string;
+  readonly requiredTests: string[];
+  readonly notes: string;
+}
+
+export interface AiPortfolioAuditOutput {
+  readonly provider: 'gemini' | 'expert-engine';
+  readonly headline: string;
+  readonly readinessScore: number;
+  readonly gaps: string[];
+  readonly recommendations: string[];
+  readonly regulation2023Notes: string[];
+}
+
+export interface AiCopilotAskOutput {
+  readonly provider: 'gemini' | 'expert-engine';
+  readonly title: string;
+  readonly answer: string;
+  readonly referencedStandards: string[];
+  readonly checklist: string[];
+  readonly suggestedDraft: {
+    readonly name: string;
+    readonly machineType: string;
+    readonly directive: string;
+    readonly standardRefs: string[];
+    readonly hazard: string;
+    readonly severity: number;
+    readonly probability: number;
+    readonly protectiveMeasures: string;
+    readonly residualRisk: string;
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class MachineCeApi {
   private readonly http = inject(HttpClient);
@@ -92,6 +171,36 @@ export class MachineCeApi {
   create(draft: RecordDraft) {
     return this.request(
       this.http.post<Envelope<MachineCeRecord>>(`${this.base}/records`, this.payload(draft)),
+    );
+  }
+  bulkCreate(drafts: RecordDraft[]) {
+    return this.request(
+      this.http.post<Envelope<{ created: number; items: MachineCeRecord[] }>>(
+        `${this.base}/records/bulk`,
+        { items: drafts.map((draft) => this.payload(draft)) },
+      ),
+    );
+  }
+  uploadAttachment(recordId: string, input: UploadAttachmentInput) {
+    return this.request(
+      this.http.post<Envelope<MachineCeRecord>>(
+        `${this.base}/records/${encodeURIComponent(recordId)}/attachments`,
+        input,
+      ),
+    );
+  }
+  getAttachment(recordId: string, attachmentId: string) {
+    return this.request(
+      this.http.get<Envelope<MachineCeAttachment>>(
+        `${this.base}/records/${encodeURIComponent(recordId)}/attachments/${encodeURIComponent(attachmentId)}`,
+      ),
+    );
+  }
+  deleteAttachment(recordId: string, attachmentId: string) {
+    return this.request(
+      this.http.delete<Envelope<MachineCeRecord>>(
+        `${this.base}/records/${encodeURIComponent(recordId)}/attachments/${encodeURIComponent(attachmentId)}`,
+      ),
     );
   }
   update(id: string, version: number, draft: RecordDraft) {
@@ -117,6 +226,24 @@ export class MachineCeApi {
   }
   report() {
     return this.request(this.http.get<Envelope<unknown>>(`${this.base}/reports/compliance`));
+  }
+  aiAnalyzeMachine(input: AiAnalyzeMachineInput) {
+    return this.request(
+      this.http.post<Envelope<AiAnalyzeMachineOutput>>(`${this.base}/ai/analyze-machine`, input),
+    );
+  }
+  aiAuditPortfolio() {
+    return this.request(
+      this.http.post<Envelope<AiPortfolioAuditOutput>>(`${this.base}/ai/audit-portfolio`, {}),
+    );
+  }
+  aiAskCopilot(question: string, contextMachineName?: string) {
+    return this.request(
+      this.http.post<Envelope<AiCopilotAskOutput>>(`${this.base}/ai/ask`, {
+        question,
+        contextMachineName: contextMachineName?.trim() || undefined,
+      }),
+    );
   }
   private payload(draft: RecordDraft) {
     const optional = (value: string) => value.trim() || undefined;
