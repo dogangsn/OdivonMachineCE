@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { SeoService } from './core/seo/seo';
 import { VersionStore } from './core/version/version-store';
 
 @Component({
@@ -71,6 +72,7 @@ import { VersionStore } from './core/version/version-store';
 export class App {
   readonly version = inject(VersionStore);
   constructor() {
+    inject(SeoService).start();
     this.version.start();
   }
 }

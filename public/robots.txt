@@ -1,3 +1,18 @@
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /overview
+Disallow: /activity
+Disallow: /settings
+Disallow: /billing
+Disallow: /subscription-result
+Disallow: /subscription-required
+Disallow: /onboarding
+Disallow: /verify-email
+Disallow: /forgot-password
+Disallow: /machines
+Disallow: /risk-assessments
+Disallow: /standards
+Disallow: /technical-files
+Disallow: /declarations
 
+Sitemap: https://machinece.odivon.com/sitemap.xml

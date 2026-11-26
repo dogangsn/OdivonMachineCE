@@ -6,22 +6,42 @@ import {
   pendingVerificationGuard,
 } from './core/auth/auth.guard';
 import { PRODUCT_NAVIGATION } from './domain/domain-navigation';
+import { DEFAULT_SEO, SeoData } from './core/seo/seo';
+
+const seo = (data: SeoData) => ({ seo: data });
 
 export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
     loadComponent: () => import('./features/landing/landing-page').then((m) => m.LandingPage),
+    data: seo(DEFAULT_SEO),
   },
   {
     path: 'login',
     loadComponent: () => import('./features/auth/auth-page').then((m) => m.AuthPage),
-    data: { mode: 'login' },
+    data: {
+      mode: 'login',
+      ...seo({
+        title: 'Giriş Yap | Odivon MachineCE',
+        description:
+          'Odivon MachineCE hesabınıza giriş yapın; makine CE dosyalarınıza, risk değerlendirmelerinize ve AT uygunluk beyanlarınıza erişin.',
+        index: true,
+      }),
+    },
   },
   {
     path: 'register',
     loadComponent: () => import('./features/auth/auth-page').then((m) => m.AuthPage),
-    data: { mode: 'register' },
+    data: {
+      mode: 'register',
+      ...seo({
+        title: 'Ücretsiz Deneyin | Odivon MachineCE',
+        description:
+          'Kredi kartı gerekmeden 14 gün ücretsiz deneyin. Makine CE uygunluk, EN ISO 12100 risk analizi ve teknik dosya süreçlerinizi dijitalleştirin.',
+        index: true,
+      }),
+    },
   },
   {
     path: 'forgot-password',
@@ -36,12 +56,28 @@ export const routes: Routes = [
   {
     path: 'legal/terms',
     loadComponent: () => import('./features/legal/legal-page').then((m) => m.LegalPage),
-    data: { document: 'terms' },
+    data: {
+      document: 'terms',
+      ...seo({
+        title: 'Kullanım Koşulları | Odivon MachineCE',
+        description:
+          'Odivon MachineCE SaaS hizmet kullanım koşulları, abonelik ve sorumluluk esasları.',
+        index: true,
+      }),
+    },
   },
   {
     path: 'legal/privacy',
     loadComponent: () => import('./features/legal/legal-page').then((m) => m.LegalPage),
-    data: { document: 'privacy' },
+    data: {
+      document: 'privacy',
+      ...seo({
+        title: 'Gizlilik ve KVKK | Odivon MachineCE',
+        description:
+          'Odivon MachineCE gizlilik ve kişisel verilerin işlenmesine ilişkin KVKK aydınlatma bildirimi.',
+        index: true,
+      }),
+    },
   },
   {
     path: 'onboarding',

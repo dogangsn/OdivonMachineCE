@@ -1,10 +1,11 @@
 import { CurrencyPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthStore } from '../../core/auth/auth-store';
+import { SITE_URL, SeoService } from '../../core/seo/seo';
 import { BUILD_INFO } from '../../core/version/build-info';
 
 interface PublicPlan {
@@ -822,6 +823,18 @@ export class LandingPage {
 
   constructor() {
     document.documentElement.classList.toggle('dark', this.dark());
+    const seo = inject(SeoService);
+    seo.setJsonLd('ld-faq', {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      url: `${SITE_URL}/`,
+      mainEntity: this.faqs.map((item) => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: { '@type': 'Answer', text: item.a },
+      })),
+    });
+    inject(DestroyRef).onDestroy(() => seo.removeJsonLd('ld-faq'));
     void this.loadLivePricing();
   }
 
